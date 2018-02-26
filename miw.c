@@ -6,6 +6,20 @@
 
 #define LEN_ARRAY(x) (sizeof(x) / sizeof(*x))
 
+void pr_regions(struct mregion *regions, size_t nr_regions)
+{
+	struct mregion *region;
+	int i;
+
+	printf("memory regions\n");
+	for (i = 0; i < nr_regions; i++) {
+		region = &regions[i];
+		printf("\t%s: %zu bytes\n", region->name, region->sz);
+	}
+	printf("\n");
+}
+
+
 void pr_phases(struct phase *phases, int nr_phases)
 {
 	struct phase *phase;
@@ -26,8 +40,12 @@ void pr_phases(struct phase *phases, int nr_phases)
 	}
 }
 
+extern struct mregion mregions[];
+extern struct phase phases[];
+
 int main(void)
 {
+	pr_regions(mregions, LEN_ARRAY(mregions));
 	pr_phases(phases, LEN_ARRAY(phases));
 
 	return 0;
