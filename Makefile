@@ -10,14 +10,14 @@ OBJ_MIW	:= miw.o
 
 all: $(APPS)
 
-$(ODIR)/%.o: %.c
+%.o: %.c config.h miw.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(MIW): $(OBJ_MIW)
 	$(CC) -o $@ $^ $(LIBS)
 
 clean:
-	rm -f $(ODIR)/*.o $(APPS)
+	rm -f *.o $(APPS)
 
 help:
 	@echo "Usage: make <target>"
