@@ -32,10 +32,11 @@ void pr_phases(struct phase *phases, int nr_phases)
 		for (j = 0; j < phase->nr_patterns; j++) {
 			pattern = &phase->patterns[j];
 			printf("\tPattern %d\n", j);
-			printf("\t\taccess region %s with stride %zu ",
-					pattern->mregion->name, pattern->stride);
-			printf("%s\n", pattern->random_access ?
-					"randomly" : "sequentially");
+			printf("\t\t%s access region %s with stride %zu\n",
+					pattern->random_access ?
+					"randomly" : "sequentially",
+					pattern->mregion->name,
+					pattern->stride);
 		}
 	}
 }
