@@ -74,8 +74,9 @@ void read_config(char *cfgpath)
 	int f;
 	f = open(cfgpath, O_RDONLY);
 	if (f == -1)
-		err(1, "open() failed");
-	fstat(f, &sb);
+		err(1, "open(\"%s\") failed", cfgpath);
+	if (fstat(f, &sb))
+		err(1, "fstat() for config file (%s) failed", cfgpath);
 	cfgstr = (char *)malloc(sb.st_size * sizeof(char));
 	read(f, cfgstr, sb.st_size);
 	offset = 0;
