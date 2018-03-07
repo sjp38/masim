@@ -88,9 +88,9 @@ repeat:
 					offset += access->stride) {
 				if (access->random_access)
 					ACCESS_ONCE(region->region[rand() %
-							region->sz]);
+							region->sz]) = 1;
 				else
-					ACCESS_ONCE(region->region[offset]);
+					ACCESS_ONCE(region->region[offset]) = 1;
 			}
 			nr_access += region->sz / access->stride;
 		}
