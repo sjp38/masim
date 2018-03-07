@@ -38,7 +38,8 @@ void pr_phases(struct phase *phases, int nr_phases)
 
 	for (i = 0; i < nr_phases; i++) {
 		phase = &phases[i];
-		printf("Phase %d for %u ms\n", i, phase->time_ms);
+		printf("Phase %d (%s) for %u ms\n", i, phase->name,
+				phase->time_ms);
 		for (j = 0; j < phase->nr_patterns; j++) {
 			pattern = &phase->patterns[j];
 			printf("\tPattern %d\n", j);
@@ -95,8 +96,8 @@ repeat:
 		if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
 			goto repeat;
 		if (!quiet)
-			printf("Phase %zu repeated %llu times\n",
-					i, nr_access);
+			printf("Phase \'%s\' repeated %llu times\n",
+					phase->name, nr_access);
 	}
 
 	for (i = 0; i < pattern->nr_regions; i++) {
