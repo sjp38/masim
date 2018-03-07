@@ -161,7 +161,8 @@ size_t parse_regions(char *str, struct mregion **regions_ptr)
 	return nr_regions;
 }
 
-size_t parse_phases(char *str, struct phase **phases_ptr)
+size_t parse_phases(char *str, struct phase **phases_ptr,
+		size_t nr_regions, struct mregion *regions)
 {
 	struct phase *phases;
 	struct phase *p;
@@ -173,7 +174,7 @@ size_t parse_phases(char *str, struct phase **phases_ptr)
 	int nr_lines;
 	char **fields;
 	int nr_fields;
-	int i, j;
+	int i, j, k;
 
 	nr_lines = astr_split(str, '\n', &lines_orig);
 	lines = lines_orig;
@@ -198,8 +199,15 @@ size_t parse_phases(char *str, struct phase **phases_ptr)
 				err(1, "Wrong number of fields! %s\n",
 						lines[0]);
 			a = &patterns[j];
-			/* TODO: Find regions by name */
 			a->mregion = NULL;
+			for (k = 0; k < nr_regions; k++) {
+				if (strcmp(fields[0], regions[k].name) == 0) {
+					a->mregion = &regions[k];
+				}
+			}
+			if (a->mregion == NULL)
+				err(1, "Cannot find region with name %s",
+						fields[0]);
 			a->random_access = atoi(fields[1]);
 			a->stride = atoi(fields[2]);
 			lines++;
@@ -243,7 +251,7 @@ void read_config(char *cfgpath, struct access_pattern *pattern_ptr)
 	nr_regions = parse_regions(content, &mregions);
 
 	content += len_paragraph + 2;	/* plus 2 for '\n\n' */
-	nr_phases = parse_phases(content, &phases);
+	nr_phases = parse_phases(content, &phases, nr_regions, mregions);
 
 	close(f);
 
