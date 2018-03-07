@@ -64,6 +64,21 @@ size_t len_line(char *str, size_t lim_seek)
 	return i;
 }
 
+/* Read exactly required bytes from a file */
+void readall(int file, char *buf, ssize_t sz)
+{
+	ssize_t sz_read;
+	ssize_t sz_total_read = 0;
+	while (1) {
+		sz_read = read(file, buf + sz_total_read, sz - sz_total_read);
+		if (sz_read == -1)
+			err(1, "read() failed!");
+		sz_total_read += sz_read;
+		if (sz_total_read == sz)
+			return;
+	}
+}
+
 void read_config(char *cfgpath)
 {
 	struct stat sb;
@@ -78,7 +93,7 @@ void read_config(char *cfgpath)
 	if (fstat(f, &sb))
 		err(1, "fstat() for config file (%s) failed", cfgpath);
 	cfgstr = (char *)malloc(sb.st_size * sizeof(char));
-	read(f, cfgstr, sb.st_size);
+	readall(f, cfgstr, sb.st_size);
 	offset = 0;
 	line = cfgstr;
 	while (1) {
