@@ -1,6 +1,7 @@
 #include <argp.h>
 #include <err.h>
 #include <fcntl.h>
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -96,7 +97,7 @@ repeat:
 		if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
 			goto repeat;
 		if (!quiet)
-			printf("Phase \'%s\' accessed %llu times\n",
+			printf("Phase \'%s\' accessed %'llu times\n",
 					phase->name, nr_access);
 	}
 
@@ -396,6 +397,7 @@ int main(int argc, char *argv[])
 		.doc = "Simulate given memory access pattern",
 	};
 	argp_parse(&argp, argc, argv, ARGP_IN_ORDER, NULL, NULL);
+	setlocale(LC_NUMERIC, "");
 
 	read_config(config_file, &apattern);
 	if (do_print_config && !quiet) {
