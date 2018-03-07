@@ -1,0 +1,17 @@
+Memory Access Simulator
+=======================
+
+'masim' is a simulator for intensive memory access.  You can use it to test the
+performance or behavior of your memory system.
+
+
+License
+-------
+
+GPL v3
+
+
+Author
+------
+
+SeongJae Park <sj38.park@gmail.com>
