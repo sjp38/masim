@@ -10,7 +10,7 @@ OBJ_MSM	:= masim.o misc.o
 
 all: $(APPS)
 
-%.o: %.c config.h masim.h
+%.o: %.c masim.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(MASIM): $(OBJ_MSM)

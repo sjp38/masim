@@ -9,7 +9,6 @@
 
 #include "misc.h"
 #include "masim.h"
-#include "config.h"
 
 
 #define LEN_ARRAY(x) (sizeof(x) / sizeof(*x))
@@ -49,9 +48,6 @@ void pr_phases(struct phase *phases, int nr_phases)
 		}
 	}
 }
-
-extern struct mregion mregions[];
-extern struct phase phases[];
 
 struct access_pattern {
 	struct mregion *regions;
@@ -212,12 +208,11 @@ size_t parse_phases(char *str, struct phase **phases_ptr)
 	return nr_phases;
 }
 
-struct access_pattern *read_config(char *cfgpath)
+void read_config(char *cfgpath, struct access_pattern *pattern_ptr)
 {
 	struct stat sb;
 	char *cfgstr;
 	int f;
-	struct access_pattern *ret = NULL;
 	char *content;
 	int len_paragraph;
 	size_t nr_regions;
@@ -243,15 +238,15 @@ struct access_pattern *read_config(char *cfgpath)
 	content[len_paragraph] = '\0';
 	nr_regions = parse_regions(content, &mregions);
 
-	pr_regions(mregions, nr_regions);
-
 	content += len_paragraph + 2;	/* plus 2 for '\n\n' */
 	nr_phases = parse_phases(content, &phases);
-	pr_phases(phases, nr_phases);
 
 	close(f);
 
-	return ret;
+	pattern_ptr->regions = mregions;
+	pattern_ptr->nr_regions = nr_regions;
+	pattern_ptr->phases = phases;
+	pattern_ptr->nr_phases = nr_phases;
 }
 
 static struct argp_option options[] = {
@@ -304,15 +299,10 @@ int main(int argc, char *argv[])
 	};
 	argp_parse(&argp, argc, argv, ARGP_IN_ORDER, NULL, NULL);
 
-	read_config(config_file);
-
-	apattern.regions = mregions;
-	apattern.nr_regions = LEN_ARRAY(mregions);
-	apattern.phases = phases;
-	apattern.nr_phases = LEN_ARRAY(phases);
+	read_config(config_file, &apattern);
 	if (do_print_config) {
-		pr_regions(apattern.regions, LEN_ARRAY(mregions));
-		pr_phases(phases, LEN_ARRAY(phases));
+		pr_regions(apattern.regions, apattern.nr_regions);
+		pr_phases(apattern.phases, apattern.nr_phases);
 	}
 
 	return 0;
