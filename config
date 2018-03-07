@@ -8,9 +8,17 @@ c, 128
 
 #phases
 # number of phases
-1
+2
 # time in ms
 1000
+# number of patterns
+2
+# name of region, randomness, stride
+a, 1, 64
+# name of region, randomness, stride
+b, 0, 4096
+# time in ms
+2000
 # number of patterns
 2
 # name of region, randomness, stride

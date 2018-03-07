@@ -34,6 +34,7 @@ void pr_phases(struct phase *phases, int nr_phases)
 	struct access *pattern;
 	int i, j;
 
+	printf("%s called\n", __func__);
 	for (i = 0; i < nr_phases; i++) {
 		phase = &phases[i];
 		printf("Phase %d for %u ms\n", i, phase->time_ms);
@@ -43,7 +44,8 @@ void pr_phases(struct phase *phases, int nr_phases)
 			printf("\t\t%s access region %s with stride %zu\n",
 					pattern->random_access ?
 					"randomly" : "sequentially",
-					pattern->mregion->name,
+					pattern->mregion == NULL ?
+						"..." : pattern->mregion->name,
 					pattern->stride);
 		}
 	}
@@ -131,7 +133,7 @@ ssize_t paragraph_len(char *str, ssize_t len)
 	return -1;
 }
 
-int parse_regions(char *str, struct mregion **regions_ptr)
+size_t parse_regions(char *str, struct mregion **regions_ptr)
 {
 	int i;
 	struct mregion *regions;
@@ -162,6 +164,53 @@ int parse_regions(char *str, struct mregion **regions_ptr)
 	*regions_ptr = regions;
 
 	return nr_regions;
+}
+
+size_t parse_phases(char *str, struct phase **phases_ptr)
+{
+	struct phase *phases;
+	struct phase *p;
+	struct access *patterns;
+	struct access *a;
+	size_t nr_phases;
+	char **lines;
+	int nr_lines;
+	char **fields;
+	int nr_fields;
+	int i, j;
+
+	nr_lines = astr_split(str, '\n', &lines);
+	if (nr_lines < 4)
+		err(1, "Not enough lines for phases %s", str);
+	nr_phases = atoi(lines[0]);
+
+	phases = (struct phase *)malloc(nr_phases * sizeof(struct phase));
+
+	lines++;
+	for (i = 0; i < nr_phases; i++) {
+		p = &phases[i];
+		p->time_ms = atoi(lines[0]);
+		p->nr_patterns = atoi(lines[1]);
+		patterns = (struct access *)malloc(p->nr_patterns *
+				sizeof(struct access));
+		p->patterns = patterns;
+		lines += 2;
+		for (j = 0; j < p->nr_patterns; j++) {
+			nr_fields = astr_split(lines[0], ',', &fields);
+			if (nr_fields != 3)
+				err(1, "Wrong number of fields! %s\n",
+						lines[0]);
+			a = &patterns[j];
+			/* TODO: Find regions by name */
+			a->mregion = NULL;
+			a->random_access = atoi(fields[1]);
+			a->stride = atoi(fields[2]);
+			lines++;
+		}
+	}
+
+	*phases_ptr = phases;
+	return nr_phases;
 }
 
 struct access_pattern *read_config(char *cfgpath)
@@ -201,6 +250,8 @@ struct access_pattern *read_config(char *cfgpath)
 
 	content += len_paragraph + 2;	/* plus 2 for '\n\n' */
 	printf("Second paragraph:\n%s\n", content);
+	nr_phases = parse_phases(content, &phases);
+	pr_phases(phases, nr_phases);
 
 	close(f);
 
