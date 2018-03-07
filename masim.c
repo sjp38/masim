@@ -1,11 +1,11 @@
 #include <argp.h>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <err.h>
-#include <unistd.h>
+#include <fcntl.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "masim.h"
 #include "config.h"
@@ -112,26 +112,6 @@ nextline:
 	close(f);
 }
 
-char *config_file = "config";
-int do_print_config;
-
-error_t parse_option(int key, char *arg, struct argp_state *state)
-{
-	switch(key) {
-	case 'c':
-		config_file = (char *)malloc((strlen(arg) + 1 ) * sizeof(char));
-		strcpy(config_file, arg);
-		break;
-	case 'p':
-		do_print_config = 1;
-		break;
-	default:
-		return ARGP_ERR_UNKNOWN;
-	}
-
-	return 0;
-}
-
 static struct argp_option options[] = {
 	{
 		.name = "config",
@@ -151,6 +131,26 @@ static struct argp_option options[] = {
 	},
 	{}
 };
+
+char *config_file = "config";
+int do_print_config;
+
+error_t parse_option(int key, char *arg, struct argp_state *state)
+{
+	switch(key) {
+	case 'c':
+		config_file = (char *)malloc((strlen(arg) + 1 ) * sizeof(char));
+		strcpy(config_file, arg);
+		break;
+	case 'p':
+		do_print_config = 1;
+		break;
+	default:
+		return ARGP_ERR_UNKNOWN;
+	}
+
+	return 0;
+}
 
 int main(int argc, char *argv[])
 {
