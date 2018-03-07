@@ -14,6 +14,8 @@
 
 #define LEN_ARRAY(x) (sizeof(x) / sizeof(*x))
 
+int quiet;
+
 void pr_regions(struct mregion *regions, size_t nr_regions)
 {
 	struct mregion *region;
@@ -91,7 +93,9 @@ repeat:
 		}
 		if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
 			goto repeat;
-		printf("Phase %zu repeated %llu times\n", i, nr_access);
+		if (!quiet)
+			printf("Phase %zu repeated %llu times\n",
+					i, nr_access);
 	}
 
 	for (i = 0; i < pattern->nr_regions; i++) {
@@ -329,6 +333,22 @@ static struct argp_option options[] = {
 			"the program ends without real access",
 		.group = 0,
 	},
+	{
+		.name = "quiet",
+		.key = 'q',
+		.arg = 0,
+		.flags = 0,
+		.doc = "suppress all normal output",
+		.group = 0,
+	},
+	{
+		.name = "silent",
+		.key = 'q',
+		.arg = 0,
+		.flags = OPTION_ALIAS,
+		.doc = "suppress all normal output",
+		.group = 0,
+	},
 
 	{}
 };
@@ -350,6 +370,9 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 	case 'd':
 		dryrun = 1;
 		break;
+	case 'q':
+		quiet = 1;
+		break;
 	default:
 		return ARGP_ERR_UNKNOWN;
 	}
@@ -370,7 +393,7 @@ int main(int argc, char *argv[])
 	argp_parse(&argp, argc, argv, ARGP_IN_ORDER, NULL, NULL);
 
 	read_config(config_file, &apattern);
-	if (do_print_config) {
+	if (do_print_config && !quiet) {
 		pr_regions(apattern.regions, apattern.nr_regions);
 		pr_phases(apattern.phases, apattern.nr_phases);
 	}
