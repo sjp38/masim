@@ -97,8 +97,11 @@ repeat:
 		if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
 			goto repeat;
 		if (!quiet)
-			printf("Phase \'%s\' accessed %'llu times\n",
-					phase->name, nr_access);
+			printf("%s:\t%'20llu accesses/second\n",
+					phase->name,
+					nr_access /
+					((clock() - start) /
+					 (CLOCKS_PER_SEC / 1000)) * 1000);
 	}
 
 	for (i = 0; i < pattern->nr_regions; i++) {
