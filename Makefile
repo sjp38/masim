@@ -6,7 +6,7 @@ MASIM	:= masim
 CC	:= gcc
 CFLAGS	:= -g -I$(IDIR) -O3 -Wall -Werror -std=gnu99
 
-OBJ_MSM	:= masim.o
+OBJ_MSM	:= masim.o misc.o
 
 all: $(APPS)
 

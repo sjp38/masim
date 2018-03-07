@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "misc.h"
 #include "masim.h"
 #include "config.h"
 
@@ -114,8 +115,53 @@ char *rm_comments(char *orig, ssize_t origsz)
 nextline:
 		offset += len + 1;
 	}
+	*write_cursor = '\0';
 
 	return result;
+}
+
+ssize_t paragraph_len(char *str, ssize_t len)
+{
+	ssize_t i;
+
+	for (i = 0; i < len - 1; i++) {
+		if (str[i] == '\n' && str[i + 1] == '\n')
+			return i;
+	}
+	return -1;
+}
+
+int parse_regions(char *str, struct mregion **regions_ptr)
+{
+	int i;
+	struct mregion *regions;
+	struct mregion *r;
+	size_t nr_regions;
+	char **lines;
+	int nr_lines;
+	char **fields;
+	int nr_fields;
+
+	nr_lines = astr_split(str, '\n', &lines);
+	if (nr_lines < 2)
+		err(1, "Not enough lines");
+	nr_regions = atoi(lines[0]);
+	regions = (struct mregion *)malloc(sizeof(struct mregion) * nr_regions);
+
+	for (i = 0; i < nr_regions; i++) {
+		r = &regions[i];
+		nr_fields = astr_split(lines[i + 1], ',', &fields);
+		if (nr_fields != 2)
+			err(1, "Wrong format config file: %s", lines[i]);
+		strcpy(r->name, fields[0]);
+		r->sz = atoi(fields[1]);
+		astr_free_str_array(fields, nr_fields);
+	}
+
+	astr_free_str_array(lines, nr_lines);
+	*regions_ptr = regions;
+
+	return nr_regions;
 }
 
 struct access_pattern *read_config(char *cfgpath)
@@ -125,6 +171,12 @@ struct access_pattern *read_config(char *cfgpath)
 	int f;
 	struct access_pattern *ret = NULL;
 	char *content;
+	int len_paragraph;
+	size_t nr_regions;
+	struct mregion *mregions;
+
+	size_t nr_phases;
+	struct phase *phases;
 
 	f = open(cfgpath, O_RDONLY);
 	if (f == -1)
@@ -136,7 +188,19 @@ struct access_pattern *read_config(char *cfgpath)
 
 	content = rm_comments(cfgstr, sb.st_size);
 	free(cfgstr);
-	printf("Content of config: %s\n", content);
+	printf("Content of config:\n%s\n", content);
+
+	len_paragraph = paragraph_len(content, strlen(content));
+	if (len_paragraph == -1)
+		err(1, "Wrong file format");
+	content[len_paragraph] = '\0';
+	printf("First paragraph:\n%s\n", content);
+	nr_regions = parse_regions(content, &mregions);
+
+	pr_regions(mregions, nr_regions);
+
+	content += len_paragraph + 2;	/* plus 2 for '\n\n' */
+	printf("Second paragraph:\n%s\n", content);
 
 	close(f);
 
