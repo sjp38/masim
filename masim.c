@@ -168,13 +168,15 @@ size_t parse_phases(char *str, struct phase **phases_ptr)
 	struct access *patterns;
 	struct access *a;
 	size_t nr_phases;
+	char **lines_orig;
 	char **lines;
 	int nr_lines;
 	char **fields;
 	int nr_fields;
 	int i, j;
 
-	nr_lines = astr_split(str, '\n', &lines);
+	nr_lines = astr_split(str, '\n', &lines_orig);
+	lines = lines_orig;
 	if (nr_lines < 4)
 		err(1, "Not enough lines for phases %s", str);
 	nr_phases = atoi(lines[0]);
@@ -201,8 +203,10 @@ size_t parse_phases(char *str, struct phase **phases_ptr)
 			a->random_access = atoi(fields[1]);
 			a->stride = atoi(fields[2]);
 			lines++;
+			astr_free_str_array(fields, nr_fields);
 		}
 	}
+	astr_free_str_array(lines_orig, nr_lines);
 
 	*phases_ptr = phases;
 	return nr_phases;
