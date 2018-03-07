@@ -91,12 +91,12 @@ repeat:
 				else
 					ACCESS_ONCE(region->region[offset]);
 			}
-			nr_access++;
+			nr_access += region->sz / access->stride;
 		}
 		if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
 			goto repeat;
 		if (!quiet)
-			printf("Phase \'%s\' repeated %llu times\n",
+			printf("Phase \'%s\' accessed %llu times\n",
 					phase->name, nr_access);
 	}
 
