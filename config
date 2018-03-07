@@ -22,7 +22,7 @@ b, 0, 4096
 # name of phase
 example phase 2
 # time in ms
-10000
+1000
 # number of patterns
 2
 # name of region, randomness, stride
