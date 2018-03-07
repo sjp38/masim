@@ -200,7 +200,7 @@ size_t parse_regions(char *str, struct mregion **regions_ptr)
 		if (nr_fields != 2)
 			err(1, "Wrong format config file: %s", lines[i]);
 		strcpy(r->name, fields[0]);
-		r->sz = atoi(fields[1]);
+		r->sz = atoll(fields[1]);
 		astr_free_str_array(fields, nr_fields);
 	}
 
