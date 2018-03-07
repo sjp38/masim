@@ -278,11 +278,22 @@ static struct argp_option options[] = {
 		.doc = "flag for configuration content print",
 		.group = 0,
 	},
+	{
+		.name = "dry_run",
+		.key = 'd',
+		.arg = 0,
+		.flags = 0,
+		.doc = "flag for dry run; If this flag is set, "
+			"the program ends without real access",
+		.group = 0,
+	},
+
 	{}
 };
 
 char *config_file = "config";
 int do_print_config;
+int dryrun;
 
 error_t parse_option(int key, char *arg, struct argp_state *state)
 {
@@ -293,6 +304,9 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 		break;
 	case 'p':
 		do_print_config = 1;
+		break;
+	case 'd':
+		dryrun = 1;
 		break;
 	default:
 		return ARGP_ERR_UNKNOWN;
@@ -316,6 +330,9 @@ int main(int argc, char *argv[])
 		pr_regions(apattern.regions, apattern.nr_regions);
 		pr_phases(apattern.phases, apattern.nr_phases);
 	}
+
+	if (dryrun)
+		return 0;
 
 	return 0;
 }
