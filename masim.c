@@ -224,7 +224,7 @@ size_t parse_phases(char *str, struct phase **phases_ptr,
 
 	nr_lines = astr_split(str, '\n', &lines_orig);
 	lines = lines_orig;
-	if (nr_lines < 4)
+	if (nr_lines < 5)
 		err(1, "Not enough lines for phases %s", str);
 	nr_phases = atoi(lines[0]);
 
@@ -233,12 +233,15 @@ size_t parse_phases(char *str, struct phase **phases_ptr,
 	lines++;
 	for (i = 0; i < nr_phases; i++) {
 		p = &phases[i];
-		p->time_ms = atoi(lines[0]);
-		p->nr_patterns = atoi(lines[1]);
+		p->name = (char *)malloc((strlen(lines[0]) + 1) *
+				sizeof(char));
+		strcpy(p->name, lines[0]);
+		p->time_ms = atoi(lines[1]);
+		p->nr_patterns = atoi(lines[2]);
+		lines += 3;
 		patterns = (struct access *)malloc(p->nr_patterns *
 				sizeof(struct access));
 		p->patterns = patterns;
-		lines += 2;
 		for (j = 0; j < p->nr_patterns; j++) {
 			nr_fields = astr_split(lines[0], ',', &fields);
 			if (nr_fields != 3)

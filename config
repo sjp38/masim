@@ -9,6 +9,8 @@ c, 128
 #phases
 # number of phases
 2
+# name of phase
+example phase 1
 # time in ms
 1000
 # number of patterns
@@ -17,6 +19,8 @@ c, 128
 a, 1, 64
 # name of region, randomness, stride
 b, 0, 4096
+# name of phase
+example phase 2
 # time in ms
 10000
 # number of patterns

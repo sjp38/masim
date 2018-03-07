@@ -14,6 +14,7 @@ struct access {
 };
 
 struct phase {
+	char *name;
 	unsigned time_ms;
 	struct access *patterns;
 	int nr_patterns;
