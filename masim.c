@@ -34,7 +34,6 @@ void pr_phases(struct phase *phases, int nr_phases)
 	struct access *pattern;
 	int i, j;
 
-	printf("%s called\n", __func__);
 	for (i = 0; i < nr_phases; i++) {
 		phase = &phases[i];
 		printf("Phase %d for %u ms\n", i, phase->time_ms);
@@ -237,19 +236,16 @@ struct access_pattern *read_config(char *cfgpath)
 
 	content = rm_comments(cfgstr, sb.st_size);
 	free(cfgstr);
-	printf("Content of config:\n%s\n", content);
 
 	len_paragraph = paragraph_len(content, strlen(content));
 	if (len_paragraph == -1)
 		err(1, "Wrong file format");
 	content[len_paragraph] = '\0';
-	printf("First paragraph:\n%s\n", content);
 	nr_regions = parse_regions(content, &mregions);
 
 	pr_regions(mregions, nr_regions);
 
 	content += len_paragraph + 2;	/* plus 2 for '\n\n' */
-	printf("Second paragraph:\n%s\n", content);
 	nr_phases = parse_phases(content, &phases);
 	pr_phases(phases, nr_phases);
 
