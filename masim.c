@@ -106,7 +106,6 @@ void read_config(char *cfgpath)
 		line[len] = '\0';
 		if (line[0] == '#')
 			goto nextline;
-		printf("line: %s\n", line);
 nextline:
 		offset += len + 1;
 	}
