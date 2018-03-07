@@ -90,14 +90,42 @@ void readall(int file, char *buf, ssize_t sz)
 	}
 }
 
-void read_config(char *cfgpath)
+char *rm_comments(char *orig, ssize_t origsz)
+{
+	char *read_cursor;
+	char *write_cursor;
+	size_t len;
+	size_t offset;
+	char *result;
+
+	result = (char *)malloc(origsz);
+	read_cursor = orig;
+	write_cursor = result;
+	offset = 0;
+	while (1) {
+		read_cursor = orig + offset;
+		len = len_line(read_cursor, origsz - offset);
+		if (len == -1)
+			break;
+		if (read_cursor[0] == '#')
+			goto nextline;
+		strncpy(write_cursor, read_cursor, len + 1);
+		write_cursor += len + 1;
+nextline:
+		offset += len + 1;
+	}
+
+	return result;
+}
+
+struct access_pattern *read_config(char *cfgpath)
 {
 	struct stat sb;
 	char *cfgstr;
-	char *line;
-	size_t len;
-	size_t offset;
 	int f;
+	struct access_pattern *ret = NULL;
+	char *content;
+
 	f = open(cfgpath, O_RDONLY);
 	if (f == -1)
 		err(1, "open(\"%s\") failed", cfgpath);
@@ -105,20 +133,14 @@ void read_config(char *cfgpath)
 		err(1, "fstat() for config file (%s) failed", cfgpath);
 	cfgstr = (char *)malloc(sb.st_size * sizeof(char));
 	readall(f, cfgstr, sb.st_size);
-	offset = 0;
-	line = cfgstr;
-	while (1) {
-		line = cfgstr + offset;
-		len = len_line(line, sb.st_size - offset);
-		if (len == -1)
-			break;
-		line[len] = '\0';
-		if (line[0] == '#')
-			goto nextline;
-nextline:
-		offset += len + 1;
-	}
+
+	content = rm_comments(cfgstr, sb.st_size);
+	free(cfgstr);
+	printf("Content of config: %s\n", content);
+
 	close(f);
+
+	return ret;
 }
 
 static struct argp_option options[] = {
