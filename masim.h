@@ -1,5 +1,5 @@
-#ifndef _MIW_H
-#define _MIW_H
+#ifndef _MASIM_H
+#define _MASIM_H
 
 struct mregion {
 	char name[256];
@@ -18,4 +18,4 @@ struct phase {
 	int nr_patterns;
 };
 
-#endif /* _MIW_H */
+#endif /* _MASIM_H */
