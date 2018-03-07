@@ -77,6 +77,7 @@ void do_access(struct access_pattern *pattern)
 	for (i = 0; i < pattern->nr_phases; i++) {
 		phase = &pattern->phases[i];
 		start = clock();
+		nr_access = 0;
 repeat:
 		for (j = 0; j < phase->nr_patterns; j++) {
 			access = &phase->patterns[j];
