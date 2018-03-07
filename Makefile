@@ -1,19 +1,19 @@
 .PHONY: clean help
 
-APPS	:= miw
-MIW	:= miw
+APPS	:= masim
+MASIM	:= masim
 
 CC	:= gcc
 CFLAGS	:= -g -I$(IDIR) -O3 -Wall -Werror -std=gnu99
 
-OBJ_MIW	:= miw.o
+OBJ_MSM	:= masim.o
 
 all: $(APPS)
 
-%.o: %.c config.h miw.h
+%.o: %.c config.h masim.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-$(MIW): $(OBJ_MIW)
+$(MASIM): $(OBJ_MSM)
 	$(CC) -o $@ $^ $(LIBS)
 
 clean:
