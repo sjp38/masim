@@ -64,6 +64,7 @@ void do_access(struct access_pattern *pattern)
 	struct mregion *region;
 	struct phase *phase;
 	struct access *access;
+	unsigned long long nr_access;
 	size_t i, j;
 	clock_t start;
 	size_t offset;
@@ -83,9 +84,11 @@ repeat:
 			for (offset = 0; offset < region->sz;
 					offset += access->stride)
 				ACCESS_ONCE(region->region[offset]);
+			nr_access++;
 		}
 		if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
 			goto repeat;
+		printf("Phase %zu repeated %llu times\n", i, nr_access);
 	}
 
 	for (i = 0; i < pattern->nr_regions; i++) {
