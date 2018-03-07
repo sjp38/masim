@@ -1,9 +1,11 @@
+#include <argp.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <err.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "masim.h"
 #include "config.h"
@@ -111,9 +113,45 @@ nextline:
 	close(f);
 }
 
-int main(void)
+char *config_file = "config";
+
+error_t parse_option(int key, char *arg, struct argp_state *state)
 {
-	read_config("config");
+	switch(key) {
+	case 'c':
+		config_file = (char *)malloc((strlen(arg) + 1 ) * sizeof(char));
+		strcpy(config_file, arg);
+		break;
+	default:
+		return ARGP_ERR_UNKNOWN;
+	}
+
+	return 0;
+}
+
+static struct argp_option options[] = {
+	{
+		.name = "config",
+		.key = 'c',
+		.arg = "<config file>",
+		.flags = 0,
+		.doc = "path to memory access configuration file",
+		.group = 0,
+	},
+	{}
+};
+
+int main(int argc, char *argv[])
+{
+	struct argp argp = {
+		.options = options,
+		.parser = parse_option,
+		.args_doc = "",
+		.doc = "Simulate given memory access pattern",
+	};
+	argp_parse(&argp, argc, argv, ARGP_IN_ORDER, NULL, NULL);
+
+	read_config(config_file);
 	pr_regions(mregions, LEN_ARRAY(mregions));
 	pr_phases(phases, LEN_ARRAY(phases));
 
