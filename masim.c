@@ -80,8 +80,13 @@ repeat:
 			access = &phase->patterns[j];
 			region = access->mregion;
 			for (offset = 0; offset < region->sz;
-					offset += access->stride)
-				ACCESS_ONCE(region->region[offset]);
+					offset += access->stride) {
+				if (access->random_access)
+					ACCESS_ONCE(region->region[rand() %
+							region->sz]);
+				else
+					ACCESS_ONCE(region->region[offset]);
+			}
 			nr_access++;
 		}
 		if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
