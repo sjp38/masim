@@ -2,12 +2,9 @@
 # number of regions
 3
 # name, length
-a
-256
-b
-64
-c
-128
+a, 256
+b, 64
+c, 128
 
 #phases
 # number of phases
@@ -17,10 +14,6 @@ c
 # number of patterns
 2
 # name of region, randomness, stride
-a
-1
-64
+a, 1, 64
 # name of region, randomness, stride
-b
-0
-4096
+b, 0, 4096
