@@ -57,8 +57,6 @@ struct access_pattern {
 	ssize_t nr_phases;
 };
 
-struct access_pattern apattern;
-
 void do_access(struct access_pattern *pattern)
 {
 	struct mregion *region;
@@ -356,6 +354,8 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 
 int main(int argc, char *argv[])
 {
+
+	struct access_pattern apattern;
 	struct argp argp = {
 		.options = options,
 		.parser = parse_option,
