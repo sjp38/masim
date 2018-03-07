@@ -87,6 +87,11 @@ repeat:
 		if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
 			goto repeat;
 	}
+
+	for (i = 0; i < pattern->nr_regions; i++) {
+		region = &pattern->regions[i];
+		free(region->region);
+	}
 }
 
 size_t len_line(char *str, size_t lim_seek)
