@@ -73,6 +73,8 @@ void read_config(char *cfgpath)
 	size_t offset;
 	int f;
 	f = open(cfgpath, O_RDONLY);
+	if (f == -1)
+		err(1, "open() failed");
 	fstat(f, &sb);
 	cfgstr = (char *)malloc(sb.st_size * sizeof(char));
 	read(f, cfgstr, sb.st_size);
