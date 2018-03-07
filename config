@@ -18,10 +18,10 @@ a, 1, 64
 # name of region, randomness, stride
 b, 0, 4096
 # time in ms
-2000
+10000
 # number of patterns
 2
 # name of region, randomness, stride
-a, 1, 64
+c, 1, 64
 # name of region, randomness, stride
 b, 0, 4096

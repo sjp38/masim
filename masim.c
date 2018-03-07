@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "misc.h"
@@ -57,6 +58,36 @@ struct access_pattern {
 };
 
 struct access_pattern apattern;
+
+void do_access(struct access_pattern *pattern)
+{
+	struct mregion *region;
+	struct phase *phase;
+	struct access *access;
+	size_t i, j;
+	clock_t start;
+	size_t offset;
+
+	for (i = 0; i < pattern->nr_regions; i++) {
+		region = &pattern->regions[i];
+		region->region = (char *)malloc(region->sz);
+	}
+
+	for (i = 0; i < pattern->nr_phases; i++) {
+		phase = &pattern->phases[i];
+		start = clock();
+repeat:
+		for (j = 0; j < phase->nr_patterns; j++) {
+			access = &phase->patterns[j];
+			region = access->mregion;
+			for (offset = 0; offset < region->sz;
+					offset += access->stride)
+				ACCESS_ONCE(region->region[offset]);
+		}
+		if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
+			goto repeat;
+	}
+}
 
 size_t len_line(char *str, size_t lim_seek)
 {
@@ -333,6 +364,8 @@ int main(int argc, char *argv[])
 
 	if (dryrun)
 		return 0;
+
+	do_access(&apattern);
 
 	return 0;
 }

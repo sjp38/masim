@@ -4,6 +4,7 @@
 struct mregion {
 	char name[256];
 	size_t sz;
+	char *region;
 };
 
 struct access {
