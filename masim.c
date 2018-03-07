@@ -113,6 +113,7 @@ nextline:
 }
 
 char *config_file = "config";
+int do_print_config;
 
 error_t parse_option(int key, char *arg, struct argp_state *state)
 {
@@ -120,6 +121,9 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 	case 'c':
 		config_file = (char *)malloc((strlen(arg) + 1 ) * sizeof(char));
 		strcpy(config_file, arg);
+		break;
+	case 'p':
+		do_print_config = 1;
 		break;
 	default:
 		return ARGP_ERR_UNKNOWN;
@@ -137,6 +141,14 @@ static struct argp_option options[] = {
 		.doc = "path to memory access configuration file",
 		.group = 0,
 	},
+	{
+		.name = "pr_config",
+		.key = 'p',
+		.arg = 0,
+		.flags = 0,
+		.doc = "flag for configuration content print",
+		.group = 0,
+	},
 	{}
 };
 
@@ -151,8 +163,10 @@ int main(int argc, char *argv[])
 	argp_parse(&argp, argc, argv, ARGP_IN_ORDER, NULL, NULL);
 
 	read_config(config_file);
-	pr_regions(mregions, LEN_ARRAY(mregions));
-	pr_phases(phases, LEN_ARRAY(phases));
+	if (do_print_config) {
+		pr_regions(mregions, LEN_ARRAY(mregions));
+		pr_phases(phases, LEN_ARRAY(phases));
+	}
 
 	return 0;
 }
