@@ -51,6 +51,15 @@ void pr_phases(struct phase *phases, int nr_phases)
 extern struct mregion mregions[];
 extern struct phase phases[];
 
+struct access_pattern {
+	struct mregion *regions;
+	ssize_t nr_regions;
+	struct phase *phases;
+	ssize_t nr_phases;
+};
+
+struct access_pattern apattern;
+
 size_t len_line(char *str, size_t lim_seek)
 {
 	size_t i;
@@ -163,8 +172,13 @@ int main(int argc, char *argv[])
 	argp_parse(&argp, argc, argv, ARGP_IN_ORDER, NULL, NULL);
 
 	read_config(config_file);
+
+	apattern.regions = mregions;
+	apattern.nr_regions = LEN_ARRAY(mregions);
+	apattern.phases = phases;
+	apattern.nr_phases = LEN_ARRAY(phases);
 	if (do_print_config) {
-		pr_regions(mregions, LEN_ARRAY(mregions));
+		pr_regions(apattern.regions, LEN_ARRAY(mregions));
 		pr_phases(phases, LEN_ARRAY(phases));
 	}
 
