@@ -61,15 +61,36 @@ struct access_pattern {
 	ssize_t nr_phases;
 };
 
+static unsigned long long __do_access(struct access *access)
+{
+	unsigned long long nr_access;
+	struct mregion *region;
+	size_t offset;
+	int i;
+
+	region = access->mregion;
+	for (i = 0; i < access->repeats; i++) {
+		for (offset = 0; offset < region->sz;
+				offset += access->stride) {
+			if (access->random_access)
+				ACCESS_ONCE(region->region[rand() %
+						region->sz]) = 1;
+			else
+				ACCESS_ONCE(region->region[offset]) = 1;
+		}
+		nr_access += region->sz / access->stride;
+	}
+
+	return nr_access;
+}
+
 void do_access(struct access_pattern *pattern)
 {
 	struct mregion *region;
 	struct phase *phase;
-	struct access *access;
 	unsigned long long nr_access;
-	size_t i, j, k;
+	size_t i, j;
 	clock_t start;
-	size_t offset;
 
 	for (i = 0; i < pattern->nr_regions; i++) {
 		region = &pattern->regions[i];
@@ -82,21 +103,7 @@ void do_access(struct access_pattern *pattern)
 		nr_access = 0;
 repeat:
 		for (j = 0; j < phase->nr_patterns; j++) {
-			access = &phase->patterns[j];
-			region = access->mregion;
-			for (k = 0; k < access->repeats; k++) {
-				for (offset = 0; offset < region->sz;
-						offset += access->stride) {
-					if (access->random_access)
-						ACCESS_ONCE(region->region[rand()
-								% region->sz])
-							= 1;
-					else
-						ACCESS_ONCE(region->region[offset])
-							= 1;
-				}
-				nr_access += region->sz / access->stride;
-			}
+			nr_access += __do_access(&phase->patterns[j]);
 		}
 		if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
 			goto repeat;
