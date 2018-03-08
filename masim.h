@@ -11,6 +11,7 @@ struct access {
 	struct mregion *mregion;
 	int random_access;
 	size_t stride;
+	int repeats;
 };
 
 struct phase {

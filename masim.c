@@ -67,7 +67,7 @@ void do_access(struct access_pattern *pattern)
 	struct phase *phase;
 	struct access *access;
 	unsigned long long nr_access;
-	size_t i, j;
+	size_t i, j, k;
 	clock_t start;
 	size_t offset;
 
@@ -84,15 +84,19 @@ repeat:
 		for (j = 0; j < phase->nr_patterns; j++) {
 			access = &phase->patterns[j];
 			region = access->mregion;
-			for (offset = 0; offset < region->sz;
-					offset += access->stride) {
-				if (access->random_access)
-					ACCESS_ONCE(region->region[rand() %
-							region->sz]) = 1;
-				else
-					ACCESS_ONCE(region->region[offset]) = 1;
+			for (k = 0; k < access->repeats; k++) {
+				for (offset = 0; offset < region->sz;
+						offset += access->stride) {
+					if (access->random_access)
+						ACCESS_ONCE(region->region[rand()
+								% region->sz])
+							= 1;
+					else
+						ACCESS_ONCE(region->region[offset])
+							= 1;
+				}
+				nr_access += region->sz / access->stride;
 			}
-			nr_access += region->sz / access->stride;
 		}
 		if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
 			goto repeat;
@@ -250,7 +254,7 @@ size_t parse_phases(char *str, struct phase **phases_ptr,
 		p->patterns = patterns;
 		for (j = 0; j < p->nr_patterns; j++) {
 			nr_fields = astr_split(lines[0], ',', &fields);
-			if (nr_fields != 3)
+			if (nr_fields != 4)
 				err(1, "Wrong number of fields! %s\n",
 						lines[0]);
 			a = &patterns[j];
@@ -265,6 +269,7 @@ size_t parse_phases(char *str, struct phase **phases_ptr,
 						fields[0]);
 			a->random_access = atoi(fields[1]);
 			a->stride = atoi(fields[2]);
+			a->repeats = atoi(fields[3]);
 			lines++;
 			astr_free_str_array(fields, nr_fields);
 		}
