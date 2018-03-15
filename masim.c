@@ -279,18 +279,22 @@ size_t parse_phases(char *str, struct phase **phases_ptr,
 	int nr_lines;
 	int i;
 
+	nr_phases = 0;
 	nr_lines = astr_split(str, '\n', &lines_orig);
 	lines = lines_orig;
-	if (nr_lines < 5)
+	if (nr_lines < 4)
 		err(1, "Not enough lines for phases %s", str);
-	nr_phases = atoi(lines[0]);
+
+	for (i = 0; i < nr_lines; i++) {
+		if (lines_orig[i][0] == '\0')
+			nr_phases++;
+	}
 
 	phases = (struct phase *)malloc(nr_phases * sizeof(struct phase));
 
-	lines++;
 	for (i = 0; i < nr_phases; i++) {
 		p = &phases[i];
-		lines += parse_phase(&lines[0], p, nr_regions, regions);
+		lines += parse_phase(&lines[0], p, nr_regions, regions) + 1;
 	}
 	astr_free_str_array(lines_orig, nr_lines);
 

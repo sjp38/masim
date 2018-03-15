@@ -5,8 +5,6 @@ b, 64
 c, 128
 
 #phases
-# number of phases
-2
 # name of phase
 example phase 1
 # time in ms
@@ -17,6 +15,7 @@ example phase 1
 a, 1, 64, 80
 # name of region, randomness, stride, # of access repeats
 b, 0, 4096, 20
+
 # name of phase
 example phase 2
 # time in ms
