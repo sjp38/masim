@@ -227,7 +227,7 @@ size_t parse_regions(char *str, struct mregion **regions_ptr)
  *
  * Return number of lines for this phase
  */
-int parse_phase(char *lines[], struct phase *p,
+int parse_phase(char *lines[], int nr_lines, struct phase *p,
 		size_t nr_regions, struct mregion *regions)
 {
 	struct access *patterns;
@@ -236,11 +236,14 @@ int parse_phase(char *lines[], struct phase *p,
 	struct access *a;
 	int j, k;
 
+	if (nr_lines < 3)
+		errx(1, "%s: Wrong number of lines! %d\n", __func__, nr_lines);
+
 	p->name = (char *)malloc((strlen(lines[0]) + 1) * sizeof(char));
 	strcpy(p->name, lines[0]);
 	p->time_ms = atoi(lines[1]);
-	p->nr_patterns = atoi(lines[2]);
-	lines += 3;
+	p->nr_patterns = nr_lines - 2;
+	lines += 2;
 	patterns = (struct access *)malloc(p->nr_patterns *
 			sizeof(struct access));
 	p->patterns = patterns;
@@ -265,7 +268,7 @@ int parse_phase(char *lines[], struct phase *p,
 		lines++;
 		astr_free_str_array(fields, nr_fields);
 	}
-	return 3 + p->nr_patterns;
+	return 2 + p->nr_patterns;
 }
 
 size_t parse_phases(char *str, struct phase **phases_ptr,
@@ -277,7 +280,8 @@ size_t parse_phases(char *str, struct phase **phases_ptr,
 	char **lines_orig;
 	char **lines;
 	int nr_lines;
-	int i;
+	int nr_lines_paragraph;
+	int i, j;
 
 	nr_phases = 0;
 	nr_lines = astr_split(str, '\n', &lines_orig);
@@ -293,8 +297,16 @@ size_t parse_phases(char *str, struct phase **phases_ptr,
 	phases = (struct phase *)malloc(nr_phases * sizeof(struct phase));
 
 	for (i = 0; i < nr_phases; i++) {
+		nr_lines_paragraph = 0;
+		for (j = 0; j < nr_lines; j++) {
+			if (lines[j][0] == '\0')
+				break;
+			nr_lines_paragraph++;
+		}
+
 		p = &phases[i];
-		lines += parse_phase(&lines[0], p, nr_regions, regions) + 1;
+		lines += parse_phase(&lines[0], nr_lines_paragraph,
+				p, nr_regions, regions) + 1;
 	}
 	astr_free_str_array(lines_orig, nr_lines);
 

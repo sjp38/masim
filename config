@@ -9,19 +9,13 @@ c, 128
 example phase 1
 # time in ms
 1000
-# number of patterns
-2
 # name of region, randomness, stride, # of access repeats
 a, 1, 64, 80
-# name of region, randomness, stride, # of access repeats
-b, 0, 4096, 20
 
 # name of phase
 example phase 2
 # time in ms
 1000
-# number of patterns
-2
 # name of region, randomness, stride, # of access repeats
 c, 1, 64, 50
 # name of region, randomness, stride, # of access repeats
