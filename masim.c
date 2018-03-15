@@ -307,6 +307,7 @@ void read_config(char *cfgpath, struct access_pattern *pattern_ptr)
 		err(1, "fstat() for config file (%s) failed", cfgpath);
 	cfgstr = (char *)malloc(sb.st_size * sizeof(char));
 	readall(f, cfgstr, sb.st_size);
+	close(f);
 
 	content = rm_comments(cfgstr, sb.st_size);
 	free(cfgstr);
@@ -319,8 +320,6 @@ void read_config(char *cfgpath, struct access_pattern *pattern_ptr)
 
 	content += len_paragraph + 2;	/* plus 2 for '\n\n' */
 	nr_phases = parse_phases(content, &phases, nr_regions, mregions);
-
-	close(f);
 
 	pattern_ptr->regions = mregions;
 	pattern_ptr->nr_regions = nr_regions;
