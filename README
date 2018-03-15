@@ -5,6 +5,15 @@ Memory Access Simulator
 performance or behavior of your memory system.
 
 
+Usage
+-----
+
+```
+Usage: masim [-dpq?] [-c <config file>] [--config=<config file>] [--dry_run]
+            [--pr_config] [--quiet] [--silent] [--help] [--usage]
+```
+
+
 License
 -------
 
