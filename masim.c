@@ -198,19 +198,17 @@ size_t parse_regions(char *str, struct mregion **regions_ptr)
 	struct mregion *r;
 	size_t nr_regions;
 	char **lines;
-	int nr_lines;
 	char **fields;
 	int nr_fields;
 
-	nr_lines = astr_split(str, '\n', &lines);
-	if (nr_lines < 2)
+	nr_regions = astr_split(str, '\n', &lines);
+	if (nr_regions < 1)
 		err(1, "Not enough lines");
-	nr_regions = atoi(lines[0]);
 	regions = (struct mregion *)malloc(sizeof(struct mregion) * nr_regions);
 
 	for (i = 0; i < nr_regions; i++) {
 		r = &regions[i];
-		nr_fields = astr_split(lines[i + 1], ',', &fields);
+		nr_fields = astr_split(lines[i], ',', &fields);
 		if (nr_fields != 2)
 			err(1, "Wrong format config file: %s", lines[i]);
 		strcpy(r->name, fields[0]);
@@ -218,7 +216,7 @@ size_t parse_regions(char *str, struct mregion **regions_ptr)
 		astr_free_str_array(fields, nr_fields);
 	}
 
-	astr_free_str_array(lines, nr_lines);
+	astr_free_str_array(lines, nr_regions);
 	*regions_ptr = regions;
 
 	return nr_regions;

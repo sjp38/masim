@@ -1,6 +1,4 @@
 #regions
-# number of regions
-3
 # name, length
 a, 256
 b, 64
