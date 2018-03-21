@@ -84,36 +84,40 @@ static unsigned long long __do_access(struct access *access)
 	return nr_access;
 }
 
-void do_access(struct access_pattern *pattern)
+void exec_pattern(struct phase *phase)
+{
+	unsigned long long nr_access;
+	clock_t start;
+	size_t j;
+
+	start = clock();
+	nr_access = 0;
+repeat:
+	for (j = 0; j < phase->nr_patterns; j++) {
+		nr_access += __do_access(&phase->patterns[j]);
+	}
+	if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
+		goto repeat;
+	if (!quiet)
+		printf("%s:\t%'20llu accesses/second\n",
+				phase->name,
+				nr_access /
+				((clock() - start) /
+				 (CLOCKS_PER_SEC / 1000)) * 1000);
+}
+
+void exec_patterns(struct access_pattern *pattern)
 {
 	struct mregion *region;
-	struct phase *phase;
-	unsigned long long nr_access;
-	size_t i, j;
-	clock_t start;
+	size_t i;
 
 	for (i = 0; i < pattern->nr_regions; i++) {
 		region = &pattern->regions[i];
 		region->region = (char *)malloc(region->sz);
 	}
 
-	for (i = 0; i < pattern->nr_phases; i++) {
-		phase = &pattern->phases[i];
-		start = clock();
-		nr_access = 0;
-repeat:
-		for (j = 0; j < phase->nr_patterns; j++) {
-			nr_access += __do_access(&phase->patterns[j]);
-		}
-		if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
-			goto repeat;
-		if (!quiet)
-			printf("%s:\t%'20llu accesses/second\n",
-					phase->name,
-					nr_access /
-					((clock() - start) /
-					 (CLOCKS_PER_SEC / 1000)) * 1000);
-	}
+	for (i = 0; i < pattern->nr_phases; i++)
+		exec_pattern(&pattern->phases[i]);
 
 	for (i = 0; i < pattern->nr_regions; i++) {
 		region = &pattern->regions[i];
@@ -449,7 +453,7 @@ int main(int argc, char *argv[])
 	if (dryrun)
 		return 0;
 
-	do_access(&apattern);
+	exec_patterns(&apattern);
 
 	return 0;
 }
