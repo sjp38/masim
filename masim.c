@@ -361,14 +361,6 @@ void read_config(char *cfgpath, struct access_pattern *pattern_ptr)
 
 static struct argp_option options[] = {
 	{
-		.name = "config",
-		.key = 'c',
-		.arg = "<config file>",
-		.flags = 0,
-		.doc = "path to memory access configuration file",
-		.group = 0,
-	},
-	{
 		.name = "pr_config",
 		.key = 'p',
 		.arg = 0,
@@ -412,7 +404,9 @@ int dryrun;
 error_t parse_option(int key, char *arg, struct argp_state *state)
 {
 	switch(key) {
-	case 'c':
+	case ARGP_KEY_ARG:
+		if (state->arg_num > 0)
+			argp_usage(state);
 		config_file = (char *)malloc((strlen(arg) + 1 ) * sizeof(char));
 		strcpy(config_file, arg);
 		break;
@@ -439,8 +433,10 @@ int main(int argc, char *argv[])
 	struct argp argp = {
 		.options = options,
 		.parser = parse_option,
-		.args_doc = "",
-		.doc = "Simulate given memory access pattern",
+		.args_doc = "[config file]",
+		.doc = "Simulate given memory access pattern\v"
+			"\'config file\' argument is optional."
+			"  It defaults to \'config\'",
 	};
 	argp_parse(&argp, argc, argv, ARGP_IN_ORDER, NULL, NULL);
 	setlocale(LC_NUMERIC, "");
