@@ -102,11 +102,11 @@ repeat:
 	if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
 		goto repeat;
 	if (!quiet)
-		printf("%s:\t%'20llu accesses/second, %ld millisecond run\n",
+		printf("%s:\t%'20llu accesses/msec, %ld millisecond run\n",
 				phase->name,
 				nr_access /
 				((clock() - start) /
-				 (CLOCKS_PER_SEC / 1000)) * 1000,
+				 (CLOCKS_PER_SEC / 1000)),
 				((clock() - start) / (CLOCKS_PER_SEC / 1000)));
 }
 
