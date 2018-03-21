@@ -65,18 +65,19 @@ static unsigned long long __do_access(struct access *access)
 {
 	unsigned long long nr_access;
 	struct mregion *region;
+	char *rr;
 	size_t offset;
 	int i;
 
 	region = access->mregion;
+	rr = region->region;
 	for (i = 0; i < access->repeats; i++) {
 		for (offset = 0; offset < region->sz;
 				offset += access->stride) {
 			if (access->random_access)
-				ACCESS_ONCE(region->region[rand() %
-						region->sz]) = 1;
+				ACCESS_ONCE(rr[rand() % region->sz]) = 1;
 			else
-				ACCESS_ONCE(region->region[offset]) = 1;
+				ACCESS_ONCE(rr[offset]) = 1;
 		}
 		nr_access += region->sz / access->stride;
 	}
@@ -93,9 +94,8 @@ void exec_pattern(struct phase *phase)
 	start = clock();
 	nr_access = 0;
 repeat:
-	for (j = 0; j < phase->nr_patterns; j++) {
+	for (j = 0; j < phase->nr_patterns; j++)
 		nr_access += __do_access(&phase->patterns[j]);
-	}
 	if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
 		goto repeat;
 	if (!quiet)
