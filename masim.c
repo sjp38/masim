@@ -96,11 +96,14 @@ void exec_pattern(struct phase *phase)
 
 	start = clock();
 	nr_access = 0;
-repeat:
-	for (j = 0; j < phase->nr_patterns; j++)
-		nr_access += __do_access(&phase->patterns[j]);
-	if (clock() - start < CLOCKS_PER_SEC / 1000 * phase->time_ms)
-		goto repeat;
+
+	j = 0;
+	while (1) {
+		nr_access += __do_access(&phase->patterns[
+				j++ % phase->nr_patterns]);
+		if (clock() - start > CLOCKS_PER_SEC / 1000 * phase->time_ms)
+			break;
+	}
 	if (!quiet)
 		printf("%s:\t%'20llu accesses/msec, %ld millisecond run\n",
 				phase->name,
