@@ -30,28 +30,31 @@ void pr_regions(struct mregion *regions, size_t nr_regions)
 	printf("\n");
 }
 
+void pr_phase(struct phase *phase)
+{
+	struct access *pattern;
+	int j;
+
+	printf("Phase (%s) for %u ms\n", phase->name, phase->time_ms);
+	for (j = 0; j < phase->nr_patterns; j++) {
+		pattern = &phase->patterns[j];
+		printf("\tPattern %d\n", j);
+		printf("\t\t%s access region %s with stride %zu\n",
+				pattern->random_access ?
+				"randomly" : "sequentially",
+				pattern->mregion == NULL ?
+				"..." : pattern->mregion->name,
+				pattern->stride);
+	}
+
+}
 
 void pr_phases(struct phase *phases, int nr_phases)
 {
-	struct phase *phase;
-	struct access *pattern;
-	int i, j;
+	int i;
 
-	for (i = 0; i < nr_phases; i++) {
-		phase = &phases[i];
-		printf("Phase %d (%s) for %u ms\n", i, phase->name,
-				phase->time_ms);
-		for (j = 0; j < phase->nr_patterns; j++) {
-			pattern = &phase->patterns[j];
-			printf("\tPattern %d\n", j);
-			printf("\t\t%s access region %s with stride %zu\n",
-					pattern->random_access ?
-					"randomly" : "sequentially",
-					pattern->mregion == NULL ?
-						"..." : pattern->mregion->name,
-					pattern->stride);
-		}
-	}
+	for (i = 0; i < nr_phases; i++)
+		pr_phase(&phases[i]);
 }
 
 struct access_pattern {
