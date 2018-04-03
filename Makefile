@@ -13,11 +13,14 @@ all: $(APPS)
 %.o: %.c masim.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
+%.s: %.c
+	$(CC) -S -o $@ $< $(CFLAGS)
+
 $(MASIM): $(OBJ_MSM)
 	$(CC) -o $@ $^ $(LIBS)
 
 clean:
-	rm -f *.o $(APPS)
+	rm -f *.o *.s $(APPS)
 
 help:
 	@echo "Usage: make <target>"
