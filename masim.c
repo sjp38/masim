@@ -63,7 +63,7 @@ struct access_pattern {
 
 static unsigned long long __do_access(struct access *access)
 {
-	unsigned long long nr_access;
+	unsigned long long nr_access = 0;
 	struct mregion *region;
 	char *rr;
 	size_t offset;
