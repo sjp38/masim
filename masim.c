@@ -64,23 +64,48 @@ struct access_pattern {
 	ssize_t nr_phases;
 };
 
+#define RAND_BATCH	1000
+#define RAND_ARR_SZ	1000
+int rndints[RAND_BATCH][RAND_ARR_SZ];
+
+static void init_rndints(void)
+{
+	int i, j;
+
+	for (i = 0; i < RAND_BATCH; i++)
+		for (j = 0; j < RAND_ARR_SZ; j++)
+			rndints[i][j] = rand();
+	rndints[0][0] = 1;
+}
+
 static unsigned long long __do_access(struct access *access)
 {
 	unsigned long long nr_access = 0;
 	struct mregion *region;
 	char *rr;
 	size_t offset;
+	unsigned rndarr = 0;
+	unsigned rndofs = RAND_ARR_SZ;
 	int i;
 
 	region = access->mregion;
 	rr = region->region;
+	if (access->random_access && rndints[0][0] == 0)
+		init_rndints();
+
 	for (i = 0; i < access->repeats; i++) {
 		for (offset = 0; offset < region->sz;
 				offset += access->stride) {
-			if (access->random_access)
-				ACCESS_ONCE(rr[rand() % region->sz]) = 1;
-			else
+			if (access->random_access) {
+				if (rndofs == RAND_ARR_SZ) {
+					rndarr = rand() % RAND_BATCH;
+					rndofs = 0;
+				}
+				ACCESS_ONCE(rr[rndints[rndarr][ rndofs++] %
+						region->sz]) = 1;
+			} else {
 				ACCESS_ONCE(rr[offset]) = 1;
+			}
 		}
 		nr_access += region->sz / access->stride;
 	}
