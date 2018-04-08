@@ -9,8 +9,8 @@ Usage
 -----
 
 ```
-Usage: masim [-dpq?] [-c <config file>] [--config=<config file>] [--dry_run]
-            [--pr_config] [--quiet] [--silent] [--help] [--usage]
+Usage: masim [-dpq?] [--dry_run] [--pr_config] [--quiet] [--silent] [--help]
+            [--usage] [config file]
 ```
 
 
@@ -19,9 +19,9 @@ Configuration File
 
 Data access pattern you want to simulate can be specified via a configuration
 file.  By default, 'masim' uses './config' file as the configuration.  The path
-to the configuration file can be changed by using '-c' or '--config' command
-line option.  This repository contains two default configuration file, 'config'
-and 'mem_perf.cfg'.  You can refer to it for usage and format of the file.
+to the configuration file can be specified as argument.  This repository
+contains two default configuration file, 'config' and 'mem_perf.cfg'.  You can
+refer to it for usage and format of the file.
 
 
 License
