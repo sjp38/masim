@@ -130,7 +130,7 @@ void exec_pattern(struct phase *phase)
 			break;
 	}
 	if (!quiet)
-		printf("%s:\t%'20llu accesses/msec, %ld millisecond run\n",
+		printf("%s:\t%'20llu accesses/msec, %ld msecs run\n",
 				phase->name,
 				nr_access /
 				((clock() - start) /
