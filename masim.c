@@ -16,6 +16,7 @@
 #define LEN_ARRAY(x) (sizeof(x) / sizeof(*x))
 
 int quiet;
+int hint;
 
 void pr_regions(struct mregion *regions, size_t nr_regions)
 {
@@ -424,6 +425,14 @@ static struct argp_option options[] = {
 		.doc = "suppress all normal output",
 		.group = 0,
 	},
+	{
+		.name = "hint",
+		.key = 't',
+		.arg = 0,
+		.flags = 0,
+		.doc = "gives access pattern hint to system",
+		.group = 0,
+	},
 
 	{}
 };
@@ -449,6 +458,9 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 		break;
 	case 'q':
 		quiet = 1;
+		break;
+	case 't':
+		hint = 1;
 		break;
 	default:
 		return ARGP_ERR_UNKNOWN;
