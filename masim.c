@@ -80,14 +80,28 @@ static void init_rndints(void)
 	rndints[0][0] = 1;
 }
 
+/*
+ * Returns a random integer
+ */
+static int rndint(void)
+{
+	static int rndofs;
+	static int rndarr;
+
+	if (rndofs == RAND_ARR_SZ) {
+		rndarr = rand() % RAND_BATCH;
+		rndofs = 0;
+	}
+
+	return rndints[rndarr][rndofs++];
+}
+
 static unsigned long long __do_access(struct access *access)
 {
 	unsigned long long nr_access = 0;
 	struct mregion *region;
 	char *rr;
 	size_t offset;
-	unsigned rndarr = 0;
-	unsigned rndofs = RAND_ARR_SZ;
 	int i;
 
 	region = access->mregion;
@@ -98,16 +112,10 @@ static unsigned long long __do_access(struct access *access)
 	for (i = 0; i < access->repeats; i++) {
 		for (offset = 0; offset < region->sz;
 				offset += access->stride) {
-			if (access->random_access) {
-				if (rndofs == RAND_ARR_SZ) {
-					rndarr = rand() % RAND_BATCH;
-					rndofs = 0;
-				}
-				ACCESS_ONCE(rr[rndints[rndarr][ rndofs++] %
-						region->sz]) = 1;
-			} else {
+			if (access->random_access)
+				ACCESS_ONCE(rr[rndint() % region->sz]) = 1;
+			else
 				ACCESS_ONCE(rr[offset]) = 1;
-			}
 		}
 		nr_access += region->sz / access->stride;
 	}
