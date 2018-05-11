@@ -98,24 +98,29 @@ static int rndint(void)
 
 static unsigned long long __do_access(struct access *access)
 {
-	unsigned long long nr_access = 0;
+	static const int BATCH_SZ = 1024 * 128;
 	struct mregion *region;
 	char *rr;
 	size_t offset;
+	int i;
 
 	region = access->mregion;
 	rr = region->region;
+	offset = access->last_offset;
 
-	for (offset = 0; offset < region->sz;
-			offset += access->stride) {
-		if (access->random_access)
+	for (i = 0; i < BATCH_SZ; i++) {
+		if (access->random_access) {
 			ACCESS_ONCE(rr[rndint() % region->sz]) = 1;
-		else
-			ACCESS_ONCE(rr[offset]) = 1;
+			continue;
+		}
+		offset += access->stride;
+		if (offset > region->sz)
+			offset = 0;
+		ACCESS_ONCE(rr[offset]) = 1;
 	}
-	nr_access += region->sz / access->stride;
+	access->last_offset = offset;
 
-	return nr_access;
+	return BATCH_SZ;
 }
 
 void hint_access_pattern(struct phase *phase)
