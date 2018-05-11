@@ -155,7 +155,7 @@ void exec_phase(struct phase *phase)
 	unsigned long long nr_access;
 	clock_t start;
 	int randn;
-	size_t i, j;
+	size_t i;
 
 	start = clock();
 	nr_access = 0;
@@ -163,7 +163,6 @@ void exec_phase(struct phase *phase)
 	if (hint)
 		hint_access_pattern(phase);
 
-	j = 0;
 	while (1) {
 		randn = rndint() % phase->total_probability;
 		for (i = 0; i < phase->nr_patterns; i++) {
@@ -176,8 +175,6 @@ void exec_phase(struct phase *phase)
 				nr_access += __do_access(pattern);
 		}
 
-		nr_access += __do_access(&phase->patterns[
-				j++ % phase->nr_patterns]);
 		if (clock() - start > CLOCKS_PER_SEC / 1000 * phase->time_ms)
 			break;
 	}
