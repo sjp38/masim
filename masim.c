@@ -144,7 +144,7 @@ void hint_access_pattern(struct phase *phase)
 	}
 }
 
-void exec_pattern(struct phase *phase)
+void exec_phase(struct phase *phase)
 {
 	struct access *pattern;
 	unsigned long long nr_access;
@@ -185,7 +185,7 @@ void exec_pattern(struct phase *phase)
 				((clock() - start) / (CLOCKS_PER_SEC / 1000)));
 }
 
-void exec_patterns(struct access_config *config)
+void exec_config(struct access_config *config)
 {
 	struct mregion *region;
 	size_t i;
@@ -196,7 +196,7 @@ void exec_patterns(struct access_config *config)
 	}
 
 	for (i = 0; i < config->nr_phases; i++)
-		exec_pattern(&config->phases[i]);
+		exec_phase(&config->phases[i]);
 
 	for (i = 0; i < config->nr_regions; i++) {
 		region = &config->regions[i];
@@ -544,7 +544,7 @@ int main(int argc, char *argv[])
 		return 0;
 
 	init_rndints();
-	exec_patterns(&config);
+	exec_config(&config);
 
 	return 0;
 }
