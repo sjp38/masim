@@ -497,7 +497,7 @@ static struct argp_option options[] = {
 	{}
 };
 
-char *config_file = "config";
+char *config_file = "configs/default";
 int do_print_config;
 int dryrun;
 
@@ -539,7 +539,7 @@ int main(int argc, char *argv[])
 		.args_doc = "[config file]",
 		.doc = "Simulate given memory access pattern\v"
 			"\'config file\' argument is optional."
-			"  It defaults to \'config\'",
+			"  It defaults to \'configs/default\'",
 	};
 	argp_parse(&argp, argc, argv, ARGP_IN_ORDER, NULL, NULL);
 	setlocale(LC_NUMERIC, "");
