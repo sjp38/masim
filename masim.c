@@ -102,21 +102,18 @@ static unsigned long long __do_access(struct access *access)
 	struct mregion *region;
 	char *rr;
 	size_t offset;
-	int i;
 
 	region = access->mregion;
 	rr = region->region;
 
-	for (i = 0; i < access->repeats; i++) {
-		for (offset = 0; offset < region->sz;
-				offset += access->stride) {
-			if (access->random_access)
-				ACCESS_ONCE(rr[rndint() % region->sz]) = 1;
-			else
-				ACCESS_ONCE(rr[offset]) = 1;
-		}
-		nr_access += region->sz / access->stride;
+	for (offset = 0; offset < region->sz;
+			offset += access->stride) {
+		if (access->random_access)
+			ACCESS_ONCE(rr[rndint() % region->sz]) = 1;
+		else
+			ACCESS_ONCE(rr[offset]) = 1;
 	}
+	nr_access += region->sz / access->stride;
 
 	return nr_access;
 }
@@ -128,15 +125,10 @@ void hint_access_pattern(struct phase *phase)
 
 	struct access *acc;
 	struct mregion *region;
-	int total_repeats;
 	int freq_offset;
 	int i;
 
-	total_repeats = 0;
-	for (i = 0; i < phase->nr_patterns; i++)
-		total_repeats += phase->patterns[i].repeats;
-
-	freq_offset = total_repeats * FREQ_OFFSET / 100;
+	freq_offset = phase->total_probability * FREQ_OFFSET / 100;
 
 	for (i = 0; i < phase->nr_patterns; i++) {
 		acc = &phase->patterns[i];
@@ -145,7 +137,7 @@ void hint_access_pattern(struct phase *phase)
 		if (region->sz < MEMSZ_OFFSET)
 			continue;
 
-		if (acc->repeats < freq_offset)
+		if (acc->probability < freq_offset)
 			continue;
 
 		madvise(region->region, region->sz, MADV_WILLNEED);
@@ -154,9 +146,11 @@ void hint_access_pattern(struct phase *phase)
 
 void exec_pattern(struct phase *phase)
 {
+	struct access *pattern;
 	unsigned long long nr_access;
 	clock_t start;
-	size_t j;
+	int randn;
+	size_t i, j;
 
 	start = clock();
 	nr_access = 0;
@@ -166,6 +160,17 @@ void exec_pattern(struct phase *phase)
 
 	j = 0;
 	while (1) {
+		randn = rndint() % phase->total_probability;
+		for (i = 0; i < phase->nr_patterns; i++) {
+			int prob_start, prob_end;
+
+			pattern = &phase->patterns[i];
+			prob_start = pattern->prob_start;
+			prob_end = prob_start + pattern->probability;
+			if (randn >= prob_start && randn < prob_end)
+				nr_access += __do_access(pattern);
+		}
+
 		nr_access += __do_access(&phase->patterns[
 				j++ % phase->nr_patterns]);
 		if (clock() - start > CLOCKS_PER_SEC / 1000 * phase->time_ms)
@@ -321,6 +326,7 @@ int parse_phase(char *lines[], int nr_lines, struct phase *p,
 	strcpy(p->name, lines[0]);
 	p->time_ms = atoi(lines[1]);
 	p->nr_patterns = nr_lines - 2;
+	p->total_probability = 0;
 	lines += 2;
 	patterns = (struct access *)malloc(p->nr_patterns *
 			sizeof(struct access));
@@ -342,9 +348,12 @@ int parse_phase(char *lines[], int nr_lines, struct phase *p,
 					fields[0]);
 		a->random_access = atoi(fields[1]);
 		a->stride = atoi(fields[2]);
-		a->repeats = atoi(fields[3]);
+		a->probability = atoi(fields[3]);
+		a->prob_start = p->total_probability;
+		a->last_offset = 0;
 		lines++;
 		astr_free_str_array(fields, nr_fields);
+		p->total_probability += a->probability;
 	}
 	return 2 + p->nr_patterns;
 }

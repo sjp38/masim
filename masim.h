@@ -11,7 +11,11 @@ struct access {
 	struct mregion *mregion;
 	int random_access;
 	size_t stride;
-	int repeats;
+	int probability;
+
+	/* For runtime only */
+	int prob_start;
+	size_t last_offset;
 };
 
 struct phase {
@@ -19,6 +23,9 @@ struct phase {
 	unsigned time_ms;
 	struct access *patterns;
 	int nr_patterns;
+
+	/* For runtime only */
+	int total_probability;
 };
 
 #endif /* _MASIM_H */
