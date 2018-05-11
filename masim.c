@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
@@ -114,6 +115,37 @@ static unsigned long long __do_access(struct access *access)
 	return nr_access;
 }
 
+void hint_access_pattern(struct phase *phase)
+{
+	static const unsigned MEMSZ_OFFSET = 10 * 1024 * 1024;	/* 10 MB */
+	static const unsigned FREQ_OFFSET = 70;	/* 70 % */
+
+	struct access *acc;
+	struct mregion *region;
+	int total_repeats;
+	int freq_offset;
+	int i;
+
+	total_repeats = 0;
+	for (i = 0; i < phase->nr_patterns; i++)
+		total_repeats += phase->patterns[i].repeats;
+
+	freq_offset = total_repeats * FREQ_OFFSET / 100;
+
+	for (i = 0; i < phase->nr_patterns; i++) {
+		acc = &phase->patterns[i];
+		region = acc->mregion;
+
+		if (region->sz < MEMSZ_OFFSET)
+			continue;
+
+		if (acc->repeats < freq_offset)
+			continue;
+
+		madvise(region->region, region->sz, MADV_WILLNEED);
+	}
+}
+
 void exec_pattern(struct phase *phase)
 {
 	unsigned long long nr_access;
@@ -122,6 +154,9 @@ void exec_pattern(struct phase *phase)
 
 	start = clock();
 	nr_access = 0;
+
+	if (hint)
+		hint_access_pattern(phase);
 
 	j = 0;
 	while (1) {
