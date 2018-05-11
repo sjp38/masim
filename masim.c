@@ -59,7 +59,7 @@ void pr_phases(struct phase *phases, int nr_phases)
 		pr_phase(&phases[i]);
 }
 
-struct access_pattern {
+struct access_config {
 	struct mregion *regions;
 	ssize_t nr_regions;
 	struct phase *phases;
@@ -185,21 +185,21 @@ void exec_pattern(struct phase *phase)
 				((clock() - start) / (CLOCKS_PER_SEC / 1000)));
 }
 
-void exec_patterns(struct access_pattern *pattern)
+void exec_patterns(struct access_config *config)
 {
 	struct mregion *region;
 	size_t i;
 
-	for (i = 0; i < pattern->nr_regions; i++) {
-		region = &pattern->regions[i];
+	for (i = 0; i < config->nr_regions; i++) {
+		region = &config->regions[i];
 		region->region = (char *)malloc(region->sz);
 	}
 
-	for (i = 0; i < pattern->nr_phases; i++)
-		exec_pattern(&pattern->phases[i]);
+	for (i = 0; i < config->nr_phases; i++)
+		exec_pattern(&config->phases[i]);
 
-	for (i = 0; i < pattern->nr_regions; i++) {
-		region = &pattern->regions[i];
+	for (i = 0; i < config->nr_regions; i++) {
+		region = &config->regions[i];
 		free(region->region);
 	}
 }
@@ -401,7 +401,7 @@ size_t parse_phases(char *str, struct phase **phases_ptr,
 	return nr_phases;
 }
 
-void read_config(char *cfgpath, struct access_pattern *pattern_ptr)
+void read_config(char *cfgpath, struct access_config *config_ptr)
 {
 	struct stat sb;
 	char *cfgstr;
@@ -435,10 +435,10 @@ void read_config(char *cfgpath, struct access_pattern *pattern_ptr)
 	content += len_paragraph + 2;	/* plus 2 for '\n\n' */
 	nr_phases = parse_phases(content, &phases, nr_regions, mregions);
 
-	pattern_ptr->regions = mregions;
-	pattern_ptr->nr_regions = nr_regions;
-	pattern_ptr->phases = phases;
-	pattern_ptr->nr_phases = nr_phases;
+	config_ptr->regions = mregions;
+	config_ptr->nr_regions = nr_regions;
+	config_ptr->phases = phases;
+	config_ptr->nr_phases = nr_phases;
 }
 
 static struct argp_option options[] = {
@@ -522,7 +522,7 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 int main(int argc, char *argv[])
 {
 
-	struct access_pattern apattern;
+	struct access_config config;
 	struct argp argp = {
 		.options = options,
 		.parser = parse_option,
@@ -534,17 +534,17 @@ int main(int argc, char *argv[])
 	argp_parse(&argp, argc, argv, ARGP_IN_ORDER, NULL, NULL);
 	setlocale(LC_NUMERIC, "");
 
-	read_config(config_file, &apattern);
+	read_config(config_file, &config);
 	if (do_print_config && !quiet) {
-		pr_regions(apattern.regions, apattern.nr_regions);
-		pr_phases(apattern.phases, apattern.nr_phases);
+		pr_regions(config.regions, config.nr_regions);
+		pr_phases(config.phases, config.nr_phases);
 	}
 
 	if (dryrun)
 		return 0;
 
 	init_rndints();
-	exec_patterns(&apattern);
+	exec_patterns(&config);
 
 	return 0;
 }
