@@ -106,8 +106,6 @@ static unsigned long long __do_access(struct access *access)
 
 	region = access->mregion;
 	rr = region->region;
-	if (access->random_access && rndints[0][0] == 0)
-		init_rndints();
 
 	for (i = 0; i < access->repeats; i++) {
 		for (offset = 0; offset < region->sz;
@@ -536,6 +534,7 @@ int main(int argc, char *argv[])
 	if (dryrun)
 		return 0;
 
+	init_rndints();
 	exec_patterns(&apattern);
 
 	return 0;
