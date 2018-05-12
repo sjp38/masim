@@ -133,6 +133,8 @@ void hint_access_pattern(struct phase *phase)
 	int freq_offset;
 	int i;
 
+	munlockall();
+
 	freq_offset = phase->total_probability * FREQ_OFFSET / 100;
 
 	for (i = 0; i < phase->nr_patterns; i++) {
@@ -145,7 +147,8 @@ void hint_access_pattern(struct phase *phase)
 		if (acc->probability < freq_offset)
 			continue;
 
-		madvise(region->region, region->sz, MADV_WILLNEED);
+		if (mlock(region->region, region->sz) == -1)
+			err(-1, "failed mlock");
 	}
 }
 
