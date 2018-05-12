@@ -157,8 +157,6 @@ void hint_access_pattern(struct phase *phase)
 
 void exec_phase(struct phase *phase)
 {
-	static const int HINT_TERM = 128;
-	static int hint_iter;
 	struct access *pattern;
 	unsigned long long nr_access;
 	unsigned long long start;
@@ -172,10 +170,6 @@ void exec_phase(struct phase *phase)
 		hint_access_pattern(phase);
 
 	while (1) {
-		if (hint && hint_iter++ > HINT_TERM) {
-			hint_access_pattern(phase);
-			hint_iter = 0;
-		}
 		randn = rndint() % phase->total_probability;
 		for (i = 0; i < phase->nr_patterns; i++) {
 			int prob_start, prob_end;
