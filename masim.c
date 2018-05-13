@@ -2,6 +2,7 @@
 #include <err.h>
 #include <fcntl.h>
 #include <locale.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,8 +17,14 @@
 
 #define LEN_ARRAY(x) (sizeof(x) / sizeof(*x))
 
+enum hintmethod {
+	NONE,
+	MADVISE,
+	MLOCK,
+};
+
+enum hintmethod hintmethod = NONE;
 int quiet;
-int hint;
 
 void pr_regions(struct mregion *regions, size_t nr_regions)
 {
@@ -123,6 +130,7 @@ static unsigned long long __do_access(struct access *access)
 	return BATCH_SZ;
 }
 
+#define SZ_PAGE	4096
 void hint_access_pattern(struct phase *phase)
 {
 	static const unsigned MEMSZ_OFFSET = 10 * 1024 * 1024;	/* 10 MB */
@@ -133,7 +141,8 @@ void hint_access_pattern(struct phase *phase)
 	int freq_offset;
 	int i;
 
-	munlockall();
+	if (hintmethod == MLOCK)
+		munlockall();
 
 	freq_offset = phase->total_probability * FREQ_OFFSET / 100;
 
@@ -147,8 +156,22 @@ void hint_access_pattern(struct phase *phase)
 		if (acc->probability < freq_offset)
 			continue;
 
-		if (mlock(region->region, region->sz) == -1)
-			err(-1, "failed mlock");
+		if (hintmethod == MLOCK) {
+			if (mlock(region->region, region->sz) == -1)
+				err(-1, "failed mlock");
+		} else if (hintmethod == MADVISE) {
+			/* madvise receive page size aligned region only */
+			uintptr_t aligned;
+
+			aligned = (uintptr_t)region->region;
+			if (aligned % SZ_PAGE != 0)
+				aligned = aligned + SZ_PAGE -
+					(aligned % SZ_PAGE);
+
+			if (madvise((void *)aligned, region->sz,
+						MADV_WILLNEED) == -1)
+				err(-1, "failed madvise");
+		}
 	}
 }
 
@@ -166,7 +189,7 @@ void exec_phase(struct phase *phase)
 	start = aclk_clock();
 	nr_access = 0;
 
-	if (hint)
+	if (hintmethod != NONE)
 		hint_access_pattern(phase);
 
 	while (1) {
@@ -485,9 +508,9 @@ static struct argp_option options[] = {
 	{
 		.name = "hint",
 		.key = 't',
-		.arg = 0,
+		.arg = "<hint method>",
 		.flags = 0,
-		.doc = "gives access pattern hint to system",
+		.doc = "gives access pattern hint to system with given method",
 		.group = 0,
 	},
 
@@ -517,8 +540,17 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 		quiet = 1;
 		break;
 	case 't':
-		hint = 1;
-		break;
+		if (strcmp("madvise", arg) == 0) {
+			hintmethod = MADVISE;
+			break;
+		}
+		if (strcmp("mlock", arg) == 0) {
+			hintmethod = MLOCK;
+			break;
+		}
+		fprintf(stderr, "hint should be madvise or mlock, not %s\n",
+				arg);
+		return ARGP_ERR_UNKNOWN;
 	default:
 		return ARGP_ERR_UNKNOWN;
 	}
