@@ -1,0 +1,23 @@
+#regions
+# name, length
+a, 104857600
+b, 104857600
+
+# phase 1
+# name of phase
+example phase 1
+# time in ms
+5000
+# access patterns
+# name of region, randomness, stride, probability
+a, 0, 64, 99
+b, 0, 64, 1
+
+# phase 2
+example phase 2
+# time in ms
+5000
+# access patterns
+# name of region, randomness, stride, probability
+a, 0, 64, 1
+b, 0, 64, 99
