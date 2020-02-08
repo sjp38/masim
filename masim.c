@@ -560,7 +560,6 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 
 int main(int argc, char *argv[])
 {
-
 	struct access_config config;
 	struct argp argp = {
 		.options = options,
