@@ -107,6 +107,14 @@ static __inline__ unsigned long long aclk_clock(void)
 
 	return(result);
 }
+#elif defined(__aarch64__)
+#define ACLK_HW_CLOCK
+static __inline__ unsigned long long aclk_clock(void)
+{
+	unsigned long long int val;
+	__asm__ __volatile__("mrs %0, cntvct_el0" : "=r"(val));
+	return val;
+}
 
 #else
 static inline unsigned long long aclk_clock(void)
