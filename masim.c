@@ -175,9 +175,6 @@ void hint_access_pattern(struct phase *phase)
 	}
 }
 
-#define CPU_FREQENCY (21 * 100 * 1000 * 1000ULL)	/* 2.1 GHz */
-#define CPU_CYCLE_MS	(CPU_FREQENCY / 1000)
-
 void exec_phase(struct phase *phase)
 {
 	struct access *pattern;
@@ -185,6 +182,10 @@ void exec_phase(struct phase *phase)
 	unsigned long long start;
 	int randn;
 	size_t i;
+	static unsigned long long cpu_cycle_ms;
+
+	if (!cpu_cycle_ms)
+		cpu_cycle_ms = aclk_freq() / 1000;
 
 	start = aclk_clock();
 	nr_access = 0;
@@ -204,15 +205,15 @@ void exec_phase(struct phase *phase)
 				nr_access += __do_access(pattern);
 		}
 
-		if (aclk_clock() - start > CPU_CYCLE_MS * phase->time_ms)
+		if (aclk_clock() - start > cpu_cycle_ms * phase->time_ms)
 			break;
 	}
 	if (!quiet)
 		printf("%s:\t%'20llu accesses/msec, %llu msecs run\n",
 				phase->name,
 				nr_access /
-				((aclk_clock() - start) / CPU_CYCLE_MS),
-				((aclk_clock() - start) / CPU_CYCLE_MS));
+				((aclk_clock() - start) / cpu_cycle_ms),
+				((aclk_clock() - start) / cpu_cycle_ms));
 }
 
 void exec_config(struct access_config *config)
