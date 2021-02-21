@@ -20,8 +20,8 @@ Configuration File
 Data access pattern you want to simulate can be specified via a configuration
 file.  By default, 'masim' uses './config' file as the configuration.  The path
 to the configuration file can be specified as argument.  This repository
-contains two default configuration file, 'config' and 'mem_perf.cfg'.  You can
-refer to it for usage and format of the file.
+contains several default configuration files.  Please refer to those for usage
+and format of the file.  'configs/default' would be a good starting point.
 
 
 Author
