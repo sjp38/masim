@@ -103,9 +103,8 @@ static int rndint(void)
 	return rndints[rndarr][rndofs++];
 }
 
-static void do_ro(struct access *access)
+static void do_ro(struct access *access, int batch)
 {
-	static const int BATCH_SZ = 1024 * 128;
 	struct mregion *region;
 	char *rr;
 	size_t offset;
@@ -116,7 +115,7 @@ static void do_ro(struct access *access)
 	rr = region->region;
 	offset = access->last_offset;
 
-	for (i = 0; i < BATCH_SZ; i++) {
+	for (i = 0; i < batch; i++) {
 		if (access->random_access) {
 			read_val = ACCESS_ONCE(rr[rndint() % region->sz]);
 			continue;
@@ -129,9 +128,8 @@ static void do_ro(struct access *access)
 	access->last_offset = offset;
 }
 
-static void do_wo(struct access *access)
+static void do_wo(struct access *access, int batch)
 {
-	static const int BATCH_SZ = 1024 * 128;
 	struct mregion *region;
 	char *rr;
 	size_t offset;
@@ -141,7 +139,7 @@ static void do_wo(struct access *access)
 	rr = region->region;
 	offset = access->last_offset;
 
-	for (i = 0; i < BATCH_SZ; i++) {
+	for (i = 0; i < batch; i++) {
 		if (access->random_access) {
 			ACCESS_ONCE(rr[rndint() % region->sz]) = 1;
 			continue;
@@ -154,9 +152,8 @@ static void do_wo(struct access *access)
 	access->last_offset = offset;
 }
 
-static void do_rw(struct access *access)
+static void do_rw(struct access *access, int batch)
 {
-	static const int BATCH_SZ = 1024 * 128;
 	struct mregion *region;
 	char *rr;
 	size_t offset;
@@ -167,7 +164,7 @@ static void do_rw(struct access *access)
 	rr = region->region;
 	offset = access->last_offset;
 
-	for (i = 0; i < BATCH_SZ; i++) {
+	for (i = 0; i < batch; i++) {
 		size_t rndoffset;
 
 		if (access->random_access) {
@@ -187,23 +184,23 @@ static void do_rw(struct access *access)
 
 static unsigned long long do_access(struct access *access)
 {
-	static const int BATCH_SZ = 1024 * 128;
+	static const int batch = 1024 * 128;
 
 	switch (access->rw_mode) {
 	case READ_ONLY:
-		do_ro(access);
+		do_ro(access, batch);
 		break;
 	case WRITE_ONLY:
-		do_wo(access);
+		do_wo(access, batch);
 		break;
 	case READ_WRITE:
-		do_rw(access);
+		do_rw(access, batch);
 		break;
 	default:
 		break;
 	}
 
-	return BATCH_SZ;
+	return batch;
 }
 
 #define SZ_PAGE	4096
