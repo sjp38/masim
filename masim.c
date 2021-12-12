@@ -103,7 +103,58 @@ static int rndint(void)
 	return rndints[rndarr][rndofs++];
 }
 
-static unsigned long long do_access(struct access *access)
+static void do_ro(struct access *access)
+{
+	static const int BATCH_SZ = 1024 * 128;
+	struct mregion *region;
+	char *rr;
+	size_t offset;
+	int i;
+	char __attribute__((unused)) read_val;
+
+	region = access->mregion;
+	rr = region->region;
+	offset = access->last_offset;
+
+	for (i = 0; i < BATCH_SZ; i++) {
+		if (access->random_access) {
+			read_val = ACCESS_ONCE(rr[rndint() % region->sz]);
+			continue;
+		}
+		offset += access->stride;
+		if (offset > region->sz)
+			offset = 0;
+		read_val = ACCESS_ONCE(rr[offset]);
+	}
+	access->last_offset = offset;
+}
+
+static void do_wo(struct access *access)
+{
+	static const int BATCH_SZ = 1024 * 128;
+	struct mregion *region;
+	char *rr;
+	size_t offset;
+	int i;
+
+	region = access->mregion;
+	rr = region->region;
+	offset = access->last_offset;
+
+	for (i = 0; i < BATCH_SZ; i++) {
+		if (access->random_access) {
+			ACCESS_ONCE(rr[rndint() % region->sz]) = 1;
+			continue;
+		}
+		offset += access->stride;
+		if (offset > region->sz)
+			offset = 0;
+		ACCESS_ONCE(rr[offset]) = 1;
+	}
+	access->last_offset = offset;
+}
+
+static void do_rw(struct access *access)
 {
 	static const int BATCH_SZ = 1024 * 128;
 	struct mregion *region;
@@ -116,53 +167,41 @@ static unsigned long long do_access(struct access *access)
 	rr = region->region;
 	offset = access->last_offset;
 
+	for (i = 0; i < BATCH_SZ; i++) {
+		size_t rndoffset;
+
+		if (access->random_access) {
+			rndoffset = rndint() % region->sz;
+			read_val = ACCESS_ONCE(rr[rndoffset]);
+			ACCESS_ONCE(rr[rndoffset]) = read_val + 1;
+			continue;
+		}
+		offset += access->stride;
+		if (offset > region->sz)
+			offset = 0;
+		read_val = ACCESS_ONCE(rr[offset]);
+		ACCESS_ONCE(rr[offset]) = read_val + 1;
+	}
+	access->last_offset = offset;
+}
+
+static unsigned long long do_access(struct access *access)
+{
+	static const int BATCH_SZ = 1024 * 128;
+
 	switch (access->rw_mode) {
 	case READ_ONLY:
-		for (i = 0; i < BATCH_SZ; i++) {
-			if (access->random_access) {
-				read_val = ACCESS_ONCE(rr[rndint() %
-						region->sz]);
-				continue;
-			}
-			offset += access->stride;
-			if (offset > region->sz)
-				offset = 0;
-			read_val = ACCESS_ONCE(rr[offset]);
-		}
+		do_ro(access);
 		break;
 	case WRITE_ONLY:
-		for (i = 0; i < BATCH_SZ; i++) {
-			if (access->random_access) {
-				ACCESS_ONCE(rr[rndint() % region->sz]) = 1;
-				continue;
-			}
-			offset += access->stride;
-			if (offset > region->sz)
-				offset = 0;
-			ACCESS_ONCE(rr[offset]) = 1;
-		}
+		do_wo(access);
 		break;
 	case READ_WRITE:
-		for (i = 0; i < BATCH_SZ; i++) {
-			size_t rndoffset;
-
-			if (access->random_access) {
-				rndoffset = rndint() % region->sz;
-				read_val = ACCESS_ONCE(rr[rndoffset]);
-				ACCESS_ONCE(rr[rndoffset]) = read_val + 1;
-				continue;
-			}
-			offset += access->stride;
-			if (offset > region->sz)
-				offset = 0;
-			read_val = ACCESS_ONCE(rr[offset]);
-			ACCESS_ONCE(rr[offset]) = read_val + 1;
-		}
+		do_rw(access);
 		break;
 	default:
 		break;
 	}
-	access->last_offset = offset;
 
 	return BATCH_SZ;
 }
