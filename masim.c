@@ -103,6 +103,28 @@ static int rndint(void)
 	return rndints[rndarr][rndofs++];
 }
 
+static inline void do_rw(char *location, enum rw_mode rw)
+{
+	char read_val;
+
+	switch(rw) {
+	case READ_ONLY:
+		read_val = ACCESS_ONCE(*location);
+		break;
+	case WRITE_ONLY:
+		ACCESS_ONCE(*location) = 1;
+		break;
+	case READ_WRITE:
+		read_val = ACCESS_ONCE(*location);
+		ACCESS_ONCE(*location) = read_val + 1;
+		break;
+	default:
+		fprintf(stderr, "Wrong rw mode %d\n", rw);
+		exit(1);
+		break;
+	}
+}
+
 static unsigned long long __do_access(struct access *access)
 {
 	static const int BATCH_SZ = 1024 * 128;
@@ -117,13 +139,13 @@ static unsigned long long __do_access(struct access *access)
 
 	for (i = 0; i < BATCH_SZ; i++) {
 		if (access->random_access) {
-			ACCESS_ONCE(rr[rndint() % region->sz]) = 1;
+			do_rw(&rr[rndint() % region->sz], access->rw_mode);
 			continue;
 		}
 		offset += access->stride;
 		if (offset > region->sz)
 			offset = 0;
-		ACCESS_ONCE(rr[offset]) = 1;
+		do_rw(&rr[offset], access->rw_mode);
 	}
 	access->last_offset = offset;
 
