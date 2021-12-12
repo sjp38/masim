@@ -7,11 +7,18 @@ struct mregion {
 	char *region;
 };
 
+enum rw_mode {
+	READ_ONLY,
+	WRITE_ONLY,
+	READ_WRITE,
+};
+
 struct access {
 	struct mregion *mregion;
 	int random_access;
 	size_t stride;
 	int probability;
+	enum rw_mode rw_mode;
 
 	/* For runtime only */
 	int prob_start;

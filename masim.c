@@ -364,7 +364,7 @@ int parse_phase(char *lines[], int nr_lines, struct phase *p,
 	p->patterns = patterns;
 	for (j = 0; j < p->nr_patterns; j++) {
 		nr_fields = astr_split(lines[0], ',', &fields);
-		if (nr_fields != 4)
+		if (nr_fields != 4 && nr_fields != 5)
 			err(1, "Wrong number of fields! %s\n",
 					lines[0]);
 		a = &patterns[j];
@@ -380,6 +380,16 @@ int parse_phase(char *lines[], int nr_lines, struct phase *p,
 		a->random_access = atoi(fields[1]);
 		a->stride = atoi(fields[2]);
 		a->probability = atoi(fields[3]);
+		if (nr_fields == 5) {
+			if (!strncmp(fields[4], "ro", 2))
+				a->rw_mode = READ_ONLY;
+			else if (!strncmp(fields[4], "wo", 2))
+				a->rw_mode = WRITE_ONLY;
+			else if (!strncmp(fields[4], "rw", 2))
+				a->rw_mode = READ_WRITE;
+		} else {
+			a->rw_mode = WRITE_ONLY;
+		}
 		a->prob_start = p->total_probability;
 		a->last_offset = 0;
 		lines++;
