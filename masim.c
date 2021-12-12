@@ -358,6 +358,24 @@ size_t parse_regions(char *str, struct mregion **regions_ptr)
 	return nr_regions;
 }
 
+enum rw_mode parse_rwmode(char *input)
+{
+	char *rwmode = malloc(strlen(input) + 1);
+
+	sscanf(input, "%s", rwmode);
+
+	if (!strncmp(rwmode, "ro", 2)) {
+		return READ_ONLY;
+	} else if (!strncmp(rwmode, "wo", 2)) {
+		return WRITE_ONLY;
+	} else if (!strncmp(rwmode, "rw", 2)) {
+		return READ_WRITE;
+	} else {
+		fprintf(stderr, "wrong rw mode: %s\n", rwmode);
+		exit(1);
+	}
+}
+
 /**
  * parse_phase - Parse a phase from string lines
  *
@@ -403,12 +421,7 @@ int parse_phase(char *lines[], int nr_lines, struct phase *p,
 		a->stride = atoi(fields[2]);
 		a->probability = atoi(fields[3]);
 		if (nr_fields == 5) {
-			if (!strncmp(fields[4], "ro", 2))
-				a->rw_mode = READ_ONLY;
-			else if (!strncmp(fields[4], "wo", 2))
-				a->rw_mode = WRITE_ONLY;
-			else if (!strncmp(fields[4], "rw", 2))
-				a->rw_mode = READ_WRITE;
+			a->rw_mode = parse_rwmode(fields[4]);
 		} else {
 			a->rw_mode = WRITE_ONLY;
 		}
