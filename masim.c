@@ -103,28 +103,6 @@ static int rndint(void)
 	return rndints[rndarr][rndofs++];
 }
 
-static inline void do_rw(char *location, enum rw_mode rw)
-{
-	char read_val;
-
-	switch(rw) {
-	case READ_ONLY:
-		read_val = ACCESS_ONCE(*location);
-		break;
-	case WRITE_ONLY:
-		ACCESS_ONCE(*location) = 1;
-		break;
-	case READ_WRITE:
-		read_val = ACCESS_ONCE(*location);
-		ACCESS_ONCE(*location) = read_val + 1;
-		break;
-	default:
-		fprintf(stderr, "Wrong rw mode %d\n", rw);
-		exit(1);
-		break;
-	}
-}
-
 static unsigned long long __do_access(struct access *access)
 {
 	static const int BATCH_SZ = 1024 * 128;
@@ -132,20 +110,57 @@ static unsigned long long __do_access(struct access *access)
 	char *rr;
 	size_t offset;
 	int i;
+	char read_val;
 
 	region = access->mregion;
 	rr = region->region;
 	offset = access->last_offset;
 
-	for (i = 0; i < BATCH_SZ; i++) {
-		if (access->random_access) {
-			do_rw(&rr[rndint() % region->sz], access->rw_mode);
-			continue;
+	switch (access->rw_mode) {
+	case READ_ONLY:
+		for (i = 0; i < BATCH_SZ; i++) {
+			if (access->random_access) {
+				read_val = ACCESS_ONCE(rr[rndint() %
+						region->sz]);
+				continue;
+			}
+			offset += access->stride;
+			if (offset > region->sz)
+				offset = 0;
+			read_val = ACCESS_ONCE(rr[offset]);
 		}
-		offset += access->stride;
-		if (offset > region->sz)
-			offset = 0;
-		do_rw(&rr[offset], access->rw_mode);
+		break;
+	case WRITE_ONLY:
+		for (i = 0; i < BATCH_SZ; i++) {
+			if (access->random_access) {
+				ACCESS_ONCE(rr[rndint() % region->sz]) = 1;
+				continue;
+			}
+			offset += access->stride;
+			if (offset > region->sz)
+				offset = 0;
+			ACCESS_ONCE(rr[offset]) = 1;
+		}
+		break;
+	case READ_WRITE:
+		for (i = 0; i < BATCH_SZ; i++) {
+			size_t rndoffset;
+
+			if (access->random_access) {
+				rndoffset = rndint() % region->sz;
+				read_val = ACCESS_ONCE(rr[rndoffset]);
+				ACCESS_ONCE(rr[rndoffset]) = read_val + 1;
+				continue;
+			}
+			offset += access->stride;
+			if (offset > region->sz)
+				offset = 0;
+			read_val = ACCESS_ONCE(rr[offset]);
+			ACCESS_ONCE(rr[offset]) = read_val + 1;
+		}
+		break;
+	default:
+		break;
 	}
 	access->last_offset = offset;
 
