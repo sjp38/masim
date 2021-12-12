@@ -103,7 +103,7 @@ static int rndint(void)
 	return rndints[rndarr][rndofs++];
 }
 
-static unsigned long long __do_access(struct access *access)
+static unsigned long long do_access(struct access *access)
 {
 	static const int BATCH_SZ = 1024 * 128;
 	struct mregion *region;
@@ -239,7 +239,7 @@ void exec_phase(struct phase *phase)
 			prob_start = pattern->prob_start;
 			prob_end = prob_start + pattern->probability;
 			if (randn >= prob_start && randn < prob_end)
-				nr_access += __do_access(pattern);
+				nr_access += do_access(pattern);
 		}
 
 		if (aclk_clock() - start > cpu_cycle_ms * phase->time_ms)
