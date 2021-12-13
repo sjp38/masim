@@ -683,6 +683,7 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 			break;
 		} else if (!strcmp("rw", arg)) {
 			default_rw_mode = READ_WRITE;
+			break;
 		}
 		fprintf(stderr, "wrong default_rwmode input %s\n", arg);
 		return ARGP_ERR_UNKNOWN;
