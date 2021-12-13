@@ -314,8 +314,13 @@ void exec_config(struct access_config *config)
 	size_t i;
 
 	for (i = 0; i < config->nr_regions; i++) {
+		int j;
+
 		region = &config->regions[i];
 		region->region = (char *)malloc(region->sz);
+		for (j = 0; j < region->sz; j++)
+			region->region[j] = (char)rndint();
+
 	}
 
 	for (i = 0; i < config->nr_phases; i++)
