@@ -25,6 +25,7 @@ enum hintmethod {
 
 enum hintmethod hintmethod = NONE;
 int quiet;
+enum rw_mode default_rw_mode = WRITE_ONLY;
 
 void pr_regions(struct mregion *regions, size_t nr_regions)
 {
@@ -492,7 +493,7 @@ int parse_phase(char *lines[], int nr_lines, struct phase *p,
 		if (nr_fields == 5) {
 			a->rw_mode = parse_rwmode(fields[4]);
 		} else {
-			a->rw_mode = WRITE_ONLY;
+			a->rw_mode = default_rw_mode;
 		}
 		a->prob_start = p->total_probability;
 		a->last_offset = 0;
@@ -628,7 +629,14 @@ static struct argp_option options[] = {
 		.doc = "gives access pattern hint to system with given method",
 		.group = 0,
 	},
-
+	{
+		.name = "default_rw_mode",
+		.key = 'r',
+		.arg = "<ro|wo|rw>",
+		.flags = 0,
+		.doc = "set default read/write mode as this",
+		.group = 0,
+	},
 	{}
 };
 
@@ -665,6 +673,18 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 		}
 		fprintf(stderr, "hint should be madvise or mlock, not %s\n",
 				arg);
+		return ARGP_ERR_UNKNOWN;
+	case 'r':
+		if (!strcmp("ro", arg)) {
+			default_rw_mode = READ_ONLY;
+			break;
+		} else if (!strcmp("wo", arg)) {
+			default_rw_mode = WRITE_ONLY;
+			break;
+		} else if (!strcmp("rw", arg)) {
+			default_rw_mode = READ_WRITE;
+		}
+		fprintf(stderr, "wrong default_rwmode input %s\n", arg);
 		return ARGP_ERR_UNKNOWN;
 	default:
 		return ARGP_ERR_UNKNOWN;
