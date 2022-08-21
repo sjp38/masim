@@ -14,6 +14,16 @@
 #include "misc.h"
 #include "masim.h"
 
+#define HUGETLB_PROTECTION (PROT_READ | PROT_WRITE)
+
+#ifdef __ia64__
+#define ADDR (void *)(0x8000000000000000UL)
+#define FLAGS (MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | MAP_FIXED)
+#else
+#define ADDR (void *)(0x0UL)
+#define FLAGS (MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB)
+#endif
+int use_hugetlb = 0;
 
 #define LEN_ARRAY(x) (sizeof(x) / sizeof(*x))
 
@@ -312,10 +322,22 @@ void exec_config(struct access_config *config)
 {
 	struct mregion *region;
 	size_t i;
+	void *addr;
 
 	for (i = 0; i < config->nr_regions; i++) {
 		region = &config->regions[i];
-		region->region = (char *)malloc(region->sz);
+		if (use_hugetlb) {
+			addr = mmap(ADDR, region->sz, HUGETLB_PROTECTION, FLAGS, -1, 0);
+			if (addr == MAP_FAILED) {
+				perror("mmap");
+				exit(1);
+			}
+			else
+				region->region = (char *)addr;
+
+		}
+		else
+			region->region = (char *)malloc(region->sz);
 	}
 
 	for (i = 0; i < config->nr_phases; i++)
@@ -323,7 +345,10 @@ void exec_config(struct access_config *config)
 
 	for (i = 0; i < config->nr_regions; i++) {
 		region = &config->regions[i];
-		free(region->region);
+		if (use_hugetlb)
+			munmap(ADDR, region->sz);
+		else
+			free(region->region);
 	}
 }
 
@@ -637,6 +662,14 @@ static struct argp_option options[] = {
 		.doc = "set default read/write mode as this",
 		.group = 0,
 	},
+	{
+		.name = "use_hugetlb",
+		.key = 'h',
+		.arg = 0,
+		.flags = 0,
+		.doc = "use hugepages",
+		.group = 0,
+	},
 	{}
 };
 
@@ -687,6 +720,9 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 		}
 		fprintf(stderr, "wrong default_rwmode input %s\n", arg);
 		return ARGP_ERR_UNKNOWN;
+	case 'h':
+		use_hugetlb = 1;
+		break;
 	default:
 		return ARGP_ERR_UNKNOWN;
 	}
