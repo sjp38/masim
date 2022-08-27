@@ -327,7 +327,8 @@ void exec_config(struct access_config *config)
 	for (i = 0; i < config->nr_regions; i++) {
 		region = &config->regions[i];
 		if (use_hugetlb) {
-			addr = mmap(ADDR, region->sz, HUGETLB_PROTECTION, FLAGS, -1, 0);
+			addr = mmap(ADDR, region->sz, HUGETLB_PROTECTION,
+					FLAGS, -1, 0);
 			if (addr == MAP_FAILED) {
 				perror("mmap");
 				exit(1);
