@@ -17,11 +17,11 @@
 #define HUGETLB_PROTECTION (PROT_READ | PROT_WRITE)
 
 #ifdef __ia64__
-#define ADDR (void *)(0x8000000000000000UL)
-#define FLAGS (MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | MAP_FIXED)
+#define HUGETLB_ADDR (void *)(0x8000000000000000UL)
+#define HUGETLB_FLAGS (MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | MAP_FIXED)
 #else
-#define ADDR (void *)(0x0UL)
-#define FLAGS (MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB)
+#define HUGETLB_ADDR (void *)(0x0UL)
+#define HUGETLB_FLAGS (MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB)
 #endif
 int use_hugetlb = 0;
 
@@ -327,8 +327,9 @@ void exec_config(struct access_config *config)
 	for (i = 0; i < config->nr_regions; i++) {
 		region = &config->regions[i];
 		if (use_hugetlb) {
-			addr = mmap(ADDR, region->sz, HUGETLB_PROTECTION,
-					FLAGS, -1, 0);
+			addr = mmap(HUGETLB_ADDR, region->sz,
+					HUGETLB_PROTECTION, HUGETLB_FLAGS, -1,
+					0);
 			if (addr == MAP_FAILED) {
 				perror("mmap");
 				exit(1);
@@ -347,7 +348,7 @@ void exec_config(struct access_config *config)
 	for (i = 0; i < config->nr_regions; i++) {
 		region = &config->regions[i];
 		if (use_hugetlb)
-			munmap(ADDR, region->sz);
+			munmap(HUGETLB_ADDR, region->sz);
 		else
 			free(region->region);
 	}
