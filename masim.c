@@ -322,21 +322,17 @@ void exec_config(struct access_config *config)
 {
 	struct mregion *region;
 	size_t i;
-	void *addr;
 
 	for (i = 0; i < config->nr_regions; i++) {
 		region = &config->regions[i];
 		if (use_hugetlb) {
-			addr = mmap(HUGETLB_ADDR, region->sz,
+			region->region = mmap(HUGETLB_ADDR, region->sz,
 					HUGETLB_PROTECTION, HUGETLB_FLAGS, -1,
 					0);
-			if (addr == MAP_FAILED) {
+			if (region->region == MAP_FAILED) {
 				perror("mmap");
 				exit(1);
 			}
-			else
-				region->region = (char *)addr;
-
 		}
 		else
 			region->region = (char *)malloc(region->sz);
