@@ -333,9 +333,9 @@ void exec_config(struct access_config *config)
 				perror("mmap");
 				exit(1);
 			}
-		}
-		else
+		} else {
 			region->region = (char *)malloc(region->sz);
+		}
 	}
 
 	for (i = 0; i < config->nr_phases; i++)
