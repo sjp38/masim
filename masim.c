@@ -36,6 +36,7 @@ enum hintmethod {
 enum hintmethod hintmethod = NONE;
 int quiet;
 enum rw_mode default_rw_mode = WRITE_ONLY;
+int nr_repeats = 1;
 
 void pr_regions(struct mregion *regions, size_t nr_regions)
 {
@@ -668,6 +669,14 @@ static struct argp_option options[] = {
 		.doc = "use hugepages",
 		.group = 0,
 	},
+	{
+		.name = "repeat",
+		.key = 'c',
+		.arg = "<count>",
+		.flags = 0,
+		.doc = "repeat the run <count> times",
+		.group = 0,
+	},
 	{}
 };
 
@@ -718,6 +727,9 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 		}
 		fprintf(stderr, "wrong default_rwmode input %s\n", arg);
 		return ARGP_ERR_UNKNOWN;
+	case 'c':
+		nr_repeats = atoi(arg);
+		break;
 	case 'h':
 		use_hugetlb = 1;
 		break;
@@ -739,20 +751,23 @@ int main(int argc, char *argv[])
 			"\'config file\' argument is optional."
 			"  It defaults to \'configs/default\'",
 	};
+	int i;
 	argp_parse(&argp, argc, argv, ARGP_IN_ORDER, NULL, NULL);
 	setlocale(LC_NUMERIC, "");
 
-	read_config(config_file, &config);
-	if (do_print_config && !quiet) {
-		pr_regions(config.regions, config.nr_regions);
-		pr_phases(config.phases, config.nr_phases);
+	for (i = 0; i < nr_repeats; i++) {
+		read_config(config_file, &config);
+		if (do_print_config && !quiet) {
+			pr_regions(config.regions, config.nr_regions);
+			pr_phases(config.phases, config.nr_phases);
+		}
+
+		if (dryrun)
+			return 0;
+
+		init_rndints();
+		exec_config(&config);
 	}
-
-	if (dryrun)
-		return 0;
-
-	init_rndints();
-	exec_config(&config);
 
 	return 0;
 }
