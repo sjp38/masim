@@ -752,6 +752,7 @@ int main(int argc, char *argv[])
 			"  It defaults to \'configs/default\'",
 	};
 	int i;
+
 	argp_parse(&argp, argc, argv, ARGP_IN_ORDER, NULL, NULL);
 	setlocale(LC_NUMERIC, "");
 
