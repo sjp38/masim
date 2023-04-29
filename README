@@ -8,9 +8,11 @@ performance or behavior of your memory system.
 Usage
 -----
 
+Please do below:
+
 ```
-Usage: masim [-dpq?] [--dry_run] [--pr_config] [--quiet] [--silent] [--help]
-            [--usage] [config file]
+$ make
+$ ./masim --help
 ```
 
 
