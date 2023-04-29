@@ -20,10 +20,11 @@ Configuration File
 ------------------
 
 Data access pattern you want to simulate can be specified via a configuration
-file.  By default, 'masim' uses './config' file as the configuration.  The path
-to the configuration file can be specified as argument.  This repository
-contains several default configuration files.  Please refer to those for usage
-and format of the file.  'configs/default' would be a good starting point.
+file.  By default, 'masim' uses './configs/default' file as the configuration.
+The path to the configuration file can be specified as argument.  This
+repository contains several default configuration files.  Please refer to those
+for usage and format of the file.  'configs/default' would be a good starting
+point.
 
 
 Author
