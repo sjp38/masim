@@ -20,9 +20,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('ascii_art', metavar='<string or file>',
             help='the ascii art to convert')
-    parser.add_argument('space', metavar='<bytes>',
+    parser.add_argument('space', metavar='<bytes>', type=int,
             help='the total memory size of the access pattern (length)')
-    parser.add_argument('time', metavar='<seconds>',
+    parser.add_argument('time', metavar='<seconds>', type=int,
             help='the total time for the accesses (height)')
     parser.add_argument('config file', metavar='<file>',
             help='the path for the output masim config file')
