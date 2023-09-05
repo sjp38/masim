@@ -24,7 +24,7 @@ def main():
             help='the total memory size of the access pattern (length)')
     parser.add_argument('time', metavar='<seconds>', type=int,
             help='the total time for the accesses (height)')
-    parser.add_argument('config file', metavar='<file>',
+    parser.add_argument('config_file', metavar='<file>',
             help='the path for the output masim config file')
 
 if __name__ == '__main__':
