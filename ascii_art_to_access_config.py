@@ -4,6 +4,14 @@
 Receive ascii art as input and convert it into masim access config file, so
 that 'damo report heats --heatmap' like command could show a colorized version
 of the ascii art.
+
+Input is assumed to be a matrix having 0-9 as values.  e.g.,
+
+    01100
+    00100
+    02100
+    00100
+    00100
 '''
 
 import argparse
