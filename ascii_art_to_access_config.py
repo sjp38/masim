@@ -48,7 +48,7 @@ def main():
     phase_time = args.time / len(rows)
     for row_idx, row in enumerate(rows):
         config_lines.append('row %d' % row_idx)
-        config_lines.append('%d' % phase_time)
+        config_lines.append('%d' % phase_time * 1000)
         for cell_idx, cell in enumerate(row):
             config_lines.append('region-%d, 0, 4096, %s' % (cell_idx, cell))
         config_lines.append('')
