@@ -42,15 +42,15 @@ def main():
     # each column becomes region; each row becomes phase
     region_size = args.space / nr_cols
     for i in range(nr_cols):
-        config_lines.append('region-%d, %d' % (i, region_size))
+        config_lines.append('region%d, %d' % (i, region_size))
     config_lines.append('')
 
     phase_time = args.time / len(rows)
     for row_idx, row in enumerate(rows):
         config_lines.append('row %d' % row_idx)
-        config_lines.append('%d' % phase_time * 1000)
+        config_lines.append('%d' % (phase_time * 1000))
         for cell_idx, cell in enumerate(row):
-            config_lines.append('region-%d, 0, 4096, %s' % (cell_idx, cell))
+            config_lines.append('region%d, 0, 4096, %s' % (cell_idx, cell))
         config_lines.append('')
 
     with open(args.config_file, 'w') as f:
