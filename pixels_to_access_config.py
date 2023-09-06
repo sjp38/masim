@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 
 '''
-Receive ascii art as input and convert it into masim access config file, so
-that 'damo report heats --heatmap' like command could show a colorized version
-of the ascii art.
+Receive pixels data as input and convert it into masim access config file, so
+that 'damo report heats --heatmap' like command could show a sort of pixel
+arts.
 
-Input is assumed to be a matrix having 0-9 as values.  e.g.,
+Pixels is assumed to be a matrix having 0-9 as each cell.  e.g.,
 
     01100
     00100
     02100
     00100
     00100
+
+Each row is for one time phase, and each cell is the memory region.  The values
+on cells are the relative access frequency of the memory region.
 '''
 
 import argparse
@@ -19,8 +22,8 @@ import os
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('ascii_art', metavar='<string or file>',
-            help='the ascii art to convert')
+    parser.add_argument('pixels', metavar='<string or file>',
+            help='the pixels describing wanted access pattern')
     parser.add_argument('space', metavar='<bytes>', type=int,
             help='the total memory size of the access pattern (length)')
     parser.add_argument('time', metavar='<seconds>', type=int,
@@ -29,13 +32,13 @@ def main():
             help='the path for the output masim config file')
     args = parser.parse_args()
 
-    if os.path.isfile(args.ascii_art):
-        with open(args.ascii_art, 'r') as f:
-            ascii_art = f.read().strip()
+    if os.path.isfile(args.pixels):
+        with open(args.pixels, 'r') as f:
+            pixels = f.read().strip()
     else:
-        ascii_art = args.ascii_art
+        pixels = args.pixels
 
-    rows = ascii_art.split('\n')
+    rows = pixels.split('\n')
     nr_cols = len(rows[0])
 
     config_lines = []
