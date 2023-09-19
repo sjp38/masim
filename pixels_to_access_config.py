@@ -53,7 +53,8 @@ def main():
         config_lines.append('row %d' % row_idx)
         config_lines.append('%d' % (phase_time * 1000))
         for cell_idx, cell in enumerate(row):
-            config_lines.append('region%d, 0, 4096, %s' % (cell_idx, cell))
+            if cell != '0':
+                config_lines.append('region%d, 0, 4096, %s' % (cell_idx, cell))
         config_lines.append('')
 
     with open(args.config_file, 'w') as f:
