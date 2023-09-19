@@ -1,0 +1,86 @@
+region0, 10000000
+region1, 10000000
+region2, 10000000
+region3, 10000000
+region4, 10000000
+region5, 10000000
+region6, 10000000
+region7, 10000000
+region8, 10000000
+region9, 10000000
+region10, 10000000
+region11, 10000000
+region12, 10000000
+region13, 10000000
+region14, 10000000
+region15, 10000000
+region16, 10000000
+region17, 10000000
+region18, 10000000
+region19, 10000000
+region20, 10000000
+region21, 10000000
+region22, 10000000
+region23, 10000000
+region24, 10000000
+
+row 0
+3000
+region3, 0, 4096, 1
+region7, 0, 4096, 1
+region9, 0, 4096, 1
+region11, 0, 4096, 1
+region13, 0, 4096, 1
+region17, 0, 4096, 1
+region19, 0, 4096, 1
+region24, 0, 4096, 1
+
+row 1
+3000
+region4, 0, 4096, 1
+region6, 0, 4096, 1
+region9, 0, 4096, 1
+region11, 0, 4096, 1
+region13, 0, 4096, 1
+region16, 0, 4096, 1
+region17, 0, 4096, 1
+region19, 0, 4096, 1
+region24, 0, 4096, 1
+
+row 2
+3000
+region5, 0, 4096, 1
+region9, 0, 4096, 1
+region11, 0, 4096, 1
+region13, 0, 4096, 1
+region15, 0, 4096, 1
+region17, 0, 4096, 1
+region19, 0, 4096, 1
+region24, 0, 4096, 1
+
+row 3
+3000
+region4, 0, 4096, 1
+region6, 0, 4096, 1
+region9, 0, 4096, 1
+region11, 0, 4096, 1
+region13, 0, 4096, 1
+region14, 0, 4096, 1
+region17, 0, 4096, 1
+region19, 0, 4096, 1
+region24, 0, 4096, 1
+
+row 4
+3000
+region3, 0, 4096, 1
+region7, 0, 4096, 1
+region9, 0, 4096, 1
+region10, 0, 4096, 1
+region11, 0, 4096, 1
+region13, 0, 4096, 1
+region17, 0, 4096, 1
+region19, 0, 4096, 1
+region21, 0, 4096, 1
+region22, 0, 4096, 1
+region23, 0, 4096, 1
+region24, 0, 4096, 1
