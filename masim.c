@@ -136,7 +136,7 @@ static void do_seq_ro(struct access *access, int batch)
 
 	for (i = 0; i < batch; i++) {
 		offset += access->stride;
-		if (offset > region->sz)
+		if (offset >= region->sz)
 			offset = 0;
 		read_val = ACCESS_ONCE(rr[offset]);
 	}
@@ -162,7 +162,7 @@ static void do_seq_wo(struct access *access, int batch)
 
 	for (i = 0; i < batch; i++) {
 		offset += access->stride;
-		if (offset > region->sz)
+		if (offset >= region->sz)
 			offset = 0;
 		ACCESS_ONCE(rr[offset]) = 1;
 	}
@@ -195,7 +195,7 @@ static void do_seq_rw(struct access *access, int batch)
 
 	for (i = 0; i < batch; i++) {
 		offset += access->stride;
-		if (offset > region->sz)
+		if (offset >= region->sz)
 			offset = 0;
 		read_val = ACCESS_ONCE(rr[offset]);
 		ACCESS_ONCE(rr[offset]) = read_val + 1;
