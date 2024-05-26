@@ -297,7 +297,10 @@ void exec_phase(struct phase *phase)
 		hint_access_pattern(phase);
 
 	while (1) {
-		randn = rndint() % phase->total_probability;
+		if (phase->total_probability)
+			randn = rndint() % phase->total_probability;
+		else
+			randn = -1;
 		for (i = 0; i < phase->nr_patterns; i++) {
 			int prob_start, prob_end;
 
