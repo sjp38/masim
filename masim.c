@@ -87,7 +87,11 @@ struct access_config {
 
 #define RAND_BATCH	1000
 #define RAND_ARR_SZ	1000
-int rndints[RAND_BATCH][RAND_ARR_SZ];
+size_t rndints[RAND_BATCH][RAND_ARR_SZ];
+
+inline static size_t rand64() {
+	return ((size_t)rand() << 32) | rand();
+}
 
 static void init_rndints(void)
 {
@@ -95,14 +99,14 @@ static void init_rndints(void)
 
 	for (i = 0; i < RAND_BATCH; i++)
 		for (j = 0; j < RAND_ARR_SZ; j++)
-			rndints[i][j] = rand();
+			rndints[i][j] = rand64();
 	rndints[0][0] = 1;
 }
 
 /*
  * Returns a random integer
  */
-static int rndint(void)
+static size_t rndint(void)
 {
 	static int rndofs;
 	static int rndarr;
