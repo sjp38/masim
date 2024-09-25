@@ -509,6 +509,7 @@ int parse_phase(char *lines[], int nr_lines, struct phase *p,
 		for (k = 0; k < nr_regions; k++) {
 			if (strcmp(fields[0], regions[k].name) == 0) {
 				a->mregion = &regions[k];
+				break;
 			}
 		}
 		if (a->mregion == NULL)
