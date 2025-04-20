@@ -29,3 +29,17 @@ class Phase:
         self.name = name
         self.runtime_ms = runtime_ms
         self.patterns = patterns
+
+def pr_config(regions, phases):
+    for region in regions:
+        print('%s, %d' % (region.name, region.length))
+    print()
+    for idx, phase in enumerate(phases):
+        print(phase.name)
+        print(phase.runtime_ms)
+        for pattern in phase.patterns:
+            print('%s, %d, %d, %d' % (
+                pattern.region_name, 1 if pattern.randomness else 0,
+                pattern.stride, pattern.access_probability))
+        if idx < len(phases) - 1:
+            print()
