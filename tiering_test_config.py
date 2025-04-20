@@ -15,6 +15,7 @@ the number of phases can be set by the user.
 '''
 
 import argparse
+import random
 
 import masim_config
 
@@ -30,6 +31,24 @@ def main():
                         type=int, help='runtime of each phase')
     parser.description = prog_description
     args = parser.parse_args()
+
+    regions = []
+    for i in range(args.nr_regions):
+        regions.append(masim_config.Region(
+            name='r%d' % i, length=(args.memsize / args.nr_regions)))
+    phases = []
+    frequencies = [x for x in range(0, args.nr_regions)]
+    for phase_idx in range(args.nr_phases):
+        patterns = []
+        random.shuffle(frequencies)
+        for region_idx, region in enumerate(regions):
+            patterns.append(masim_config.AccessPattern(
+                region_name=region.name, randomness=True, stride=4096,
+                access_probability=frequencies[region_idx]))
+        phases.append(masim_config.Phase(
+            name='p%d' % phase_idx, runtime_ms=args.phase_runtime_ms,
+            patterns=patterns))
+    masim_config.pr_config(regions, phases)
 
 if __name__ == '__main__':
     main()
