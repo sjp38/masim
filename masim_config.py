@@ -13,12 +13,15 @@ class AccessPattern:
     randomness = None
     stride = None
     access_probability = None
+    rw_mode = None  # wo, ro, rw
 
-    def __init__(self, region_name, randomness, stride, access_probability):
+    def __init__(self, region_name, randomness, stride, access_probability,
+                 rw_mode='wo'):
         self.region_name = region_name
         self.randomness = randomness
         self.stride = stride
         self.access_probability = access_probability
+        self.rw_mode = rw_mode
 
 class Phase:
     name = None
@@ -38,8 +41,8 @@ def pr_config(regions, phases):
         print(phase.name)
         print(phase.runtime_ms)
         for pattern in phase.patterns:
-            print('%s, %d, %d, %d' % (
+            print('%s, %d, %d, %d, %s' % (
                 pattern.region_name, 1 if pattern.randomness else 0,
-                pattern.stride, pattern.access_probability))
+                pattern.stride, pattern.access_probability, pattern.rw_mode))
         if idx < len(phases) - 1:
             print()
