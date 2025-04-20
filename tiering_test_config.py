@@ -35,7 +35,7 @@ def main():
     regions = []
     for i in range(args.nr_regions):
         regions.append(masim_config.Region(
-            name='r%d' % i, length=(args.memsize / args.nr_regions)))
+            name='r%d' % i, sz_bytes=(args.memsize / args.nr_regions)))
     phases = []
     frequencies = [x for x in range(0, args.nr_regions)]
     for phase_idx in range(args.nr_phases):

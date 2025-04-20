@@ -2,11 +2,11 @@
 
 class Region:
     name = None
-    length = None
+    sz_bytes = None
 
-    def __init__(self, name, length):
+    def __init__(self, name, sz_bytes):
         self.name = name
-        self.length = length
+        self.sz_bytes = sz_bytes
 
 class AccessPattern:
     region_name = None
@@ -32,7 +32,7 @@ class Phase:
 
 def pr_config(regions, phases):
     for region in regions:
-        print('%s, %d' % (region.name, region.length))
+        print('%s, %d' % (region.name, region.sz_bytes))
     print()
     for idx, phase in enumerate(phases):
         print(phase.name)
