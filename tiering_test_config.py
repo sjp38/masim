@@ -32,6 +32,11 @@ def main():
     parser.description = prog_description
     args = parser.parse_args()
 
+    if (args.memsize is None or args.nr_regions is None or
+        args.nr_phases is None or args.phase_runtime_ms is None):
+        print('all options should be set')
+        exit(1)
+
     regions = []
     for i in range(args.nr_regions):
         regions.append(masim_config.Region(
