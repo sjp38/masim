@@ -16,7 +16,7 @@ class AccessPattern:
     rw_mode = None  # wo, ro, rw
 
     def __init__(self, region_name, randomness, stride, access_probability,
-                 rw_mode='wo'):
+                 rw_mode):
         self.region_name = region_name
         self.randomness = randomness
         self.stride = stride
