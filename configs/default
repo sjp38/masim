@@ -10,8 +10,8 @@ example phase 1
 # time in ms
 1000
 # access patterns
-# name of region, randomness, stride, probability
-a, 1, 64, 80
+# name of region, randomness, stride, probability, read/write mode
+a, 1, 64, 80, wo
 
 # phase 2
 example phase 2
@@ -19,5 +19,5 @@ example phase 2
 1000
 # access patterns
 # name of region, randomness, stride, probability
-c, 1, 64, 50
-b, 0, 4096, 50
+c, 1, 64, 50, ro
+b, 0, 4096, 50, rw
