@@ -44,7 +44,8 @@ def main():
         for region_idx, region in enumerate(regions):
             patterns.append(masim_config.AccessPattern(
                 region_name=region.name, randomness=True, stride=4096,
-                access_probability=frequencies[region_idx]))
+                access_probability=frequencies[region_idx],
+                rw_mode='wo'))
         phases.append(masim_config.Phase(
             name='p%d' % phase_idx, runtime_ms=args.phase_runtime_ms,
             patterns=patterns))
