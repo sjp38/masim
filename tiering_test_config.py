@@ -23,9 +23,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--memsize', metavar='<bytes>', type=int,
                         help='total size of memory to make stress')
-    parser.add_argument('--nr_regions', type=int,
+    parser.add_argument('--nr_regions', type=int, metavar='<number>',
                         help='number of regions having different hotness')
-    parser.add_argument('--nr_phases', type=int,
+    parser.add_argument('--nr_phases', type=int, metavar='<number>',
                         help='number of phases')
     parser.add_argument('--phase_runtime_ms', metavar='<milliseconds>',
                         type=int, help='runtime of each phase')
