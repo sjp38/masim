@@ -37,6 +37,7 @@ enum hintmethod hintmethod = NONE;
 int quiet;
 enum rw_mode default_rw_mode = WRITE_ONLY;
 int nr_repeats = 1;
+int log_interval_ms = 0;
 
 void pr_regions(struct mregion *regions, size_t nr_regions)
 {
@@ -285,8 +286,8 @@ void hint_access_pattern(struct phase *phase)
 void exec_phase(struct phase *phase)
 {
 	struct access *pattern;
-	unsigned long long nr_access;
-	unsigned long long start;
+	unsigned long long nr_access, nr_last_logged_access = 0;
+	unsigned long long start, now, last_log_time;
 	int randn;
 	size_t i;
 	static unsigned long long cpu_cycle_ms;
@@ -295,6 +296,7 @@ void exec_phase(struct phase *phase)
 		cpu_cycle_ms = aclk_freq() / 1000;
 
 	start = aclk_clock();
+	last_log_time = start;
 	nr_access = 0;
 
 	if (hintmethod != NONE)
@@ -315,10 +317,21 @@ void exec_phase(struct phase *phase)
 				nr_access += do_access(pattern);
 		}
 
-		if (aclk_clock() - start > cpu_cycle_ms * phase->time_ms)
+		now = aclk_clock();
+		if (!quiet && log_interval_ms &&
+				now - last_log_time >
+				cpu_cycle_ms * log_interval_ms) {
+			printf("%s:\t%'20llu accesses / %d msec\n",
+					phase->name,
+					nr_access - nr_last_logged_access,
+					log_interval_ms);
+			last_log_time = now;
+			nr_last_logged_access = nr_access;
+		}
+		if (now - start > cpu_cycle_ms * phase->time_ms)
 			break;
 	}
-	if (!quiet)
+	if (!quiet && !log_interval_ms)
 		printf("%s:\t%'20llu accesses/msec, %llu msecs run\n",
 				phase->name,
 				nr_access /
@@ -685,6 +698,14 @@ static struct argp_option options[] = {
 		.doc = "repeat the run <count> times",
 		.group = 0,
 	},
+	{
+		.name = "log_interval",
+		.key = 1,
+		.arg = "<milliseconds>",
+		.flags = 0,
+		.doc = "periodic access speed logging interval",
+		.group = 0,
+	},
 	{}
 };
 
@@ -740,6 +761,9 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 		break;
 	case 'h':
 		use_hugetlb = 1;
+		break;
+	case 1:
+		log_interval_ms = atoi(arg);
 		break;
 	default:
 		return ARGP_ERR_UNKNOWN;
