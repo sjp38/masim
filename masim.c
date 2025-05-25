@@ -718,6 +718,22 @@ static struct argp_option options[] = {
 		.doc = "periodic access speed logging interval",
 		.group = 0,
 	},
+	{
+		.name = "random_batch",
+		.key = 2,
+		.arg = "<int>",
+		.flags = 0,
+		.doc = "number of random number arrays",
+		.group = 0,
+	},
+	{
+		.name = "random_array",
+		.key = 3,
+		.arg = "<int>",
+		.flags = 0,
+		.doc = "size of each random number array",
+		.group = 0,
+	},
 	{}
 };
 
@@ -776,6 +792,12 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 		break;
 	case 1:
 		log_interval_ms = atoi(arg);
+		break;
+	case 2:
+		rand_batch = atoi(arg);
+		break;
+	case 3:
+		rand_arr_sz = atoi(arg);
 		break;
 	default:
 		return ARGP_ERR_UNKNOWN;
