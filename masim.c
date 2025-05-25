@@ -38,6 +38,8 @@ int quiet;
 enum rw_mode default_rw_mode = WRITE_ONLY;
 int nr_repeats = 1;
 int log_interval_ms = 0;
+static int rand_batch = 1000;
+static int rand_arr_sz = 1000;
 
 void pr_regions(struct mregion *regions, size_t nr_regions)
 {
@@ -86,9 +88,7 @@ struct access_config {
 	ssize_t nr_phases;
 };
 
-#define RAND_BATCH	1000
-#define RAND_ARR_SZ	1000
-size_t rndints[RAND_BATCH][RAND_ARR_SZ];
+size_t **rndints;
 
 inline static size_t rand64() {
 	return ((size_t)rand() << 32) | rand();
@@ -98,10 +98,22 @@ static void init_rndints(void)
 {
 	int i, j;
 
-	for (i = 0; i < RAND_BATCH; i++)
-		for (j = 0; j < RAND_ARR_SZ; j++)
+	rndints = malloc(sizeof(rndints) * rand_batch);
+	for (i = 0; i < rand_batch; i++) {
+		rndints[i] = malloc(sizeof(rndints[0]) * rand_arr_sz);
+		for (j = 0; j < rand_arr_sz; j++)
 			rndints[i][j] = rand64();
+	}
 	rndints[0][0] = 1;
+}
+
+static void fini_rndints(void)
+{
+	int i;
+
+	for (i = 0; i < rand_batch; i++)
+		free(rndints[i]);
+	free(rndints);
 }
 
 /*
@@ -112,8 +124,8 @@ static size_t rndint(void)
 	static int rndofs;
 	static int rndarr;
 
-	if (rndofs == RAND_ARR_SZ) {
-		rndarr = rand() % RAND_BATCH;
+	if (rndofs == rand_arr_sz) {
+		rndarr = rand() % rand_batch;
 		rndofs = 0;
 	}
 
@@ -800,6 +812,7 @@ int main(int argc, char *argv[])
 
 		init_rndints();
 		exec_config(&config);
+		fini_rndints();
 	}
 
 	return 0;
