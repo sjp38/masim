@@ -64,7 +64,9 @@ should be random or sequential.  `1` means random, `0` means sequential.  If
 the access is sequential, the third field specifies the access stride size in
 bytes.  For example, if the size of the region is `12 bytes` and the pattern
 asks `masim` to do sequential access with `4 bytes` stride size, `masim` will
-repeat accessing first, fifth, and ninth bytes of the region in the order.
+repeat accessing first, fifth, and ninth bytes of the region in the order.  If
+the second field specifies the access should be random, the third field means
+nothing.
 
 The fourth field is the probability of the access pattern to be selected for
 execution by `masim` during the given phase.  For example, if the phase has two
