@@ -123,8 +123,3 @@ KiB sub-regions of the region named `b`, for the one second.  The access will
 be repeatedly made during the one second phase.  For each of the access,
 whether the access should be that for region `c` or region `b` will be decided
 in 50:50 probability.
-
-Author
-------
-
-SeongJae Park <sj38.park@gmail.com>
