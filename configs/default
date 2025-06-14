@@ -1,8 +1,8 @@
 #regions
-# name, length
-a, 256
-b, 64
-c, 128
+# name, length, initial data file
+a, 256, none
+b, 64, none
+c, 128, none
 
 # phase 1
 # name of phase
