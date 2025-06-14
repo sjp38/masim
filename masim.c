@@ -40,6 +40,7 @@ int nr_repeats = 1;
 int log_interval_ms = 0;
 static int rand_batch = 1000;
 static int rand_arr_sz = 1000;
+static int nr_accesses_per_region =  1024 * 128;
 
 void pr_regions(struct mregion *regions, size_t nr_regions)
 {
@@ -222,32 +223,30 @@ static void do_seq_rw(struct access *access, int batch)
 
 static unsigned long long do_access(struct access *access)
 {
-	static const int batch = 1024 * 128;
-
 	switch (access->rw_mode) {
 	case READ_ONLY:
 		if (access->random_access)
-			do_rnd_ro(access, batch);
+			do_rnd_ro(access, nr_accesses_per_region);
 		else
-			do_seq_ro(access, batch);
+			do_seq_ro(access, nr_accesses_per_region);
 		break;
 	case WRITE_ONLY:
 		if (access->random_access)
-			do_rnd_wo(access, batch);
+			do_rnd_wo(access, nr_accesses_per_region);
 		else
-			do_seq_wo(access, batch);
+			do_seq_wo(access, nr_accesses_per_region);
 		break;
 	case READ_WRITE:
 		if (access->random_access)
-			do_rnd_rw(access, batch);
+			do_rnd_rw(access, nr_accesses_per_region);
 		else
-			do_seq_rw(access, batch);
+			do_seq_rw(access, nr_accesses_per_region);
 		break;
 	default:
 		break;
 	}
 
-	return batch;
+	return nr_accesses_per_region;
 }
 
 #define SZ_PAGE	4096
