@@ -350,25 +350,28 @@ void exec_phase(struct phase *phase)
 				((aclk_clock() - start) / cpu_cycle_ms));
 }
 
+static void init_region(struct mregion *region)
+{
+	if (use_hugetlb) {
+		region->region = mmap(HUGETLB_ADDR, region->sz,
+				HUGETLB_PROTECTION, HUGETLB_FLAGS, -1,
+				0);
+		if (region->region == MAP_FAILED) {
+			perror("mmap");
+			exit(1);
+		}
+	} else {
+		region->region = (char *)malloc(region->sz);
+	}
+}
+
 void exec_config(struct access_config *config)
 {
 	struct mregion *region;
 	size_t i;
 
-	for (i = 0; i < config->nr_regions; i++) {
-		region = &config->regions[i];
-		if (use_hugetlb) {
-			region->region = mmap(HUGETLB_ADDR, region->sz,
-					HUGETLB_PROTECTION, HUGETLB_FLAGS, -1,
-					0);
-			if (region->region == MAP_FAILED) {
-				perror("mmap");
-				exit(1);
-			}
-		} else {
-			region->region = (char *)malloc(region->sz);
-		}
-	}
+	for (i = 0; i < config->nr_regions; i++)
+		init_region(&config->regions[i]);
 
 	for (i = 0; i < config->nr_phases; i++)
 		exec_phase(&config->phases[i]);
