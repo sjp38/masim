@@ -516,7 +516,12 @@ size_t parse_regions(char *str, struct mregion **regions_ptr)
 					(strlen(fields[2]) + 1));
 			if (!r->data_file)
 				err(1, "data_file alloc");
-			strcpy(r->data_file, fields[2]);
+			if (strcmp("none", fields[2])) {
+				free(r->data_file);
+				r->data_file = NULL;
+			} else {
+				strcpy(r->data_file, fields[2]);
+			}
 		}
 	}
 
