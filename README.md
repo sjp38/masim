@@ -76,10 +76,51 @@ number can be given.
 The fifth field specifies whether to do read only (`ro`), write only (`wo`), or
 both read and write (`rw`) access.
 
-This repository contains several default configuration files.  Please refer to
-those for usage and format of the file.  'configs/default' would be a good
-starting point.
+### Example
 
+Let's see below config file content as an example.
+
+```
+#regions
+# name, length, initial data file
+a, 256, none
+b, 64, /dev/zero
+c, 128, /dev/urandom
+
+# phase 1
+# name of phase
+example phase 1
+# time in ms
+1000
+# access patterns
+# name of region, randomness, stride, probability, read/write mode
+a, 1, 64, 80, wo
+
+# phase 2
+example phase 2
+# time in ms
+1000
+# access patterns
+# name of region, randomness, stride, probability
+c, 1, 64, 50, ro
+b, 0, 4096, 50, rw
+```
+
+If this config is passed to `masim`, `masim` will allocate three memory regions
+of size 256, 64, 128 bytes, respectively.  `masim` will internally name the
+three regions as `a`, `b`, and `c`, respectively.  The second and third regions
+will load 64 and 128 bytes of data that read from `/dev/zero` and
+`/dev/urandom` files.
+
+`masim` will then write random bytes of the first region (named `a`), for one
+second.
+
+After the one second, `masim` will read random bytes of the region named `c`
+for one second.  `masim` will also sequentially read and write first bytes of 4
+KiB sub-regions of the region named `b`, for the one second.  The access will
+be repeatedly made during the one second phase.  For each of the access,
+whether the access should be that for region `c` or region `b` will be decided
+in 50:50 probability.
 
 Author
 ------
