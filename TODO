@@ -1,1 +1,3 @@
 - Add detailed explanation of config file format
+- Support memory content
+- Support disabling the loop unroll optimization
