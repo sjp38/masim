@@ -350,6 +350,36 @@ void exec_phase(struct phase *phase)
 				((aclk_clock() - start) / cpu_cycle_ms));
 }
 
+static void load_init_data(struct mregion *region)
+{
+	int fd;
+	char buffer[4096];
+	ssize_t bytes_read;
+	size_t data_filled = 0;
+
+	if (!region->data_file)
+		return;
+
+	fd = open(region->data_file, O_RDONLY);
+	if (fd == -1) {
+		perror("init data load, open");
+		exit(1);
+	}
+	while (data_filled < region->sz) {
+		bytes_read = read(fd, buffer, 4096);
+		if (bytes_read == -1) {
+			perror("init data load, read");
+			close(fd);
+			exit(1);
+		}
+		if (bytes_read > region->sz - data_filled)
+			bytes_read = region->sz - data_filled;
+		memcpy(&region->region[data_filled], buffer, bytes_read);
+		data_filled += bytes_read;
+	}
+	close(fd);
+}
+
 static void init_region(struct mregion *region)
 {
 	if (use_hugetlb) {
@@ -363,6 +393,7 @@ static void init_region(struct mregion *region)
 	} else {
 		region->region = (char *)malloc(region->sz);
 	}
+	load_init_data(region);
 }
 
 void exec_config(struct access_config *config)
