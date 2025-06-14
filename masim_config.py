@@ -3,10 +3,12 @@
 class Region:
     name = None
     sz_bytes = None
+    init_data_file = None
 
-    def __init__(self, name, sz_bytes):
+    def __init__(self, name, sz_bytes, init_data_file=None):
         self.name = name
         self.sz_bytes = sz_bytes
+        self.init_data_file = init_data_file
 
 class AccessPattern:
     region_name = None
@@ -35,7 +37,10 @@ class Phase:
 
 def pr_config(regions, phases):
     for region in regions:
-        print('%s, %d' % (region.name, region.sz_bytes))
+        init_data_file = region.init_data_file
+        if init_data_file is None:
+            init_data_file = 'none'
+        print('%s, %d, %s' % (region.name, region.sz_bytes, init_data_file))
     print()
     for idx, phase in enumerate(phases):
         print(phase.name)
