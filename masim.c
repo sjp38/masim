@@ -733,6 +733,15 @@ static struct argp_option options[] = {
 		.doc = "size of each random number array",
 		.group = 0,
 	},
+	{
+		.name = "nr_accesses_per_region",
+		.key = 4,
+		.arg = "<int>",
+		.flags = 0,
+		.doc = "number of acceses to do per selected region",
+		.group = 0,
+	},
+
 	{}
 };
 
@@ -797,6 +806,9 @@ error_t parse_option(int key, char *arg, struct argp_state *state)
 		break;
 	case 3:
 		rand_arr_sz = atoi(arg);
+		break;
+	case 4:
+		nr_accesses_per_region = atoi(arg);
 		break;
 	default:
 		return ARGP_ERR_UNKNOWN;
