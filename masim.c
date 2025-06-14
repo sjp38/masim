@@ -133,18 +133,18 @@ static size_t rndint(void)
 	return rndints[rndarr][rndofs++];
 }
 
-static void do_rnd_ro(struct access *access, int batch)
+static void do_rnd_ro(struct access *access)
 {
 	struct mregion *region = access->mregion;
 	char *rr = region->region;
 	int i;
 	char __attribute__((unused)) read_val;
 
-	for (i = 0; i < batch; i++)
+	for (i = 0; i < nr_accesses_per_region; i++)
 		read_val = ACCESS_ONCE(rr[rndint() % region->sz]);
 }
 
-static void do_seq_ro(struct access *access, int batch)
+static void do_seq_ro(struct access *access)
 {
 	struct mregion *region = access->mregion;
 	char *rr = region->region;
@@ -152,7 +152,7 @@ static void do_seq_ro(struct access *access, int batch)
 	int i;
 	char __attribute__((unused)) read_val;
 
-	for (i = 0; i < batch; i++) {
+	for (i = 0; i < nr_accesses_per_region; i++) {
 		offset += access->stride;
 		if (offset >= region->sz)
 			offset = 0;
@@ -161,24 +161,24 @@ static void do_seq_ro(struct access *access, int batch)
 	access->last_offset = offset;
 }
 
-static void do_rnd_wo(struct access *access, int batch)
+static void do_rnd_wo(struct access *access)
 {
 	struct mregion *region = access->mregion;
 	char *rr = region->region;
 	int i;
 
-	for (i = 0; i < batch; i++)
+	for (i = 0; i < nr_accesses_per_region; i++)
 		ACCESS_ONCE(rr[rndint() % region->sz]) = 1;
 }
 
-static void do_seq_wo(struct access *access, int batch)
+static void do_seq_wo(struct access *access)
 {
 	struct mregion *region = access->mregion;
 	char *rr = region->region;
 	size_t offset = access->last_offset;
 	int i;
 
-	for (i = 0; i < batch; i++) {
+	for (i = 0; i < nr_accesses_per_region; i++) {
 		offset += access->stride;
 		if (offset >= region->sz)
 			offset = 0;
@@ -187,14 +187,14 @@ static void do_seq_wo(struct access *access, int batch)
 	access->last_offset = offset;
 }
 
-static void do_rnd_rw(struct access *access, int batch)
+static void do_rnd_rw(struct access *access)
 {
 	struct mregion *region = access->mregion;
 	char *rr = region->region;
 	int i;
 	char read_val;
 
-	for (i = 0; i < batch; i++) {
+	for (i = 0; i < nr_accesses_per_region; i++) {
 		size_t rndoffset;
 
 		rndoffset = rndint() % region->sz;
@@ -203,7 +203,7 @@ static void do_rnd_rw(struct access *access, int batch)
 	}
 }
 
-static void do_seq_rw(struct access *access, int batch)
+static void do_seq_rw(struct access *access)
 {
 	struct mregion *region = access->mregion;
 	char *rr = region->region;
@@ -211,7 +211,7 @@ static void do_seq_rw(struct access *access, int batch)
 	int i;
 	char read_val;
 
-	for (i = 0; i < batch; i++) {
+	for (i = 0; i < nr_accesses_per_region; i++) {
 		offset += access->stride;
 		if (offset >= region->sz)
 			offset = 0;
@@ -226,21 +226,21 @@ static unsigned long long do_access(struct access *access)
 	switch (access->rw_mode) {
 	case READ_ONLY:
 		if (access->random_access)
-			do_rnd_ro(access, nr_accesses_per_region);
+			do_rnd_ro(access);
 		else
-			do_seq_ro(access, nr_accesses_per_region);
+			do_seq_ro(access);
 		break;
 	case WRITE_ONLY:
 		if (access->random_access)
-			do_rnd_wo(access, nr_accesses_per_region);
+			do_rnd_wo(access);
 		else
-			do_seq_wo(access, nr_accesses_per_region);
+			do_seq_wo(access);
 		break;
 	case READ_WRITE:
 		if (access->random_access)
-			do_rnd_rw(access, nr_accesses_per_region);
+			do_rnd_rw(access);
 		else
-			do_seq_rw(access, nr_accesses_per_region);
+			do_seq_rw(access);
 		break;
 	default:
 		break;
