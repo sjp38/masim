@@ -478,6 +478,7 @@ size_t parse_regions(char *str, struct mregion **regions_ptr)
 		strcpy(r->name, fields[0]);
 		r->sz = atoll(fields[1]);
 		astr_free_str_array(fields, nr_fields);
+		r->data_file = NULL;
 	}
 
 	astr_free_str_array(lines, nr_regions);

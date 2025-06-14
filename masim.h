@@ -5,6 +5,7 @@ struct mregion {
 	char name[256];
 	size_t sz;
 	char *region;
+	char *data_file;
 };
 
 enum rw_mode {
