@@ -504,12 +504,20 @@ size_t parse_regions(char *str, struct mregion **regions_ptr)
 	for (i = 0; i < nr_regions; i++) {
 		r = &regions[i];
 		nr_fields = astr_split(lines[i], ',', &fields);
-		if (nr_fields != 2)
+		if (nr_fields != 2 && nr_fields != 3)
 			err(1, "Wrong format config file: %s", lines[i]);
 		strcpy(r->name, fields[0]);
 		r->sz = atoll(fields[1]);
 		astr_free_str_array(fields, nr_fields);
-		r->data_file = NULL;
+		if (nr_fields == 2) {
+			r->data_file = NULL;
+		} else {
+			r->data_file = malloc(sizeof(char) *
+					(strlen(fields[2]) + 1));
+			if (!r->data_file)
+				err(1, "data_file alloc");
+			strcpy(r->data_file, fields[2]);
+		}
 	}
 
 	astr_free_str_array(lines, nr_regions);
