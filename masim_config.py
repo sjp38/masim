@@ -35,19 +35,25 @@ class Phase:
         self.runtime_ms = runtime_ms
         self.patterns = patterns
 
-def pr_config(regions, phases):
+def fmt_config(regions, phases):
+    lines = []
     for region in regions:
         init_data_file = region.init_data_file
         if init_data_file is None:
             init_data_file = 'none'
-        print('%s, %d, %s' % (region.name, region.sz_bytes, init_data_file))
-    print()
+        lines.append('%s, %d, %s' % (
+            region.name, region.sz_bytes, init_data_file))
+    lines.append('')
     for idx, phase in enumerate(phases):
-        print(phase.name)
-        print(phase.runtime_ms)
+        lines.append(phase.name)
+        lines.append('%s' % phase.runtime_ms)
         for pattern in phase.patterns:
-            print('%s, %d, %d, %d, %s' % (
+            lines.append('%s, %d, %d, %d, %s' % (
                 pattern.region_name, 1 if pattern.randomness else 0,
                 pattern.stride, pattern.access_probability, pattern.rw_mode))
         if idx < len(phases) - 1:
-            print()
+            lines.append('')
+    return '\n'.join(lines)
+
+def pr_config(regions, phases):
+    print(fmt_config(regions, phases))
