@@ -4,27 +4,7 @@ import argparse
 
 import masim_config
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-            '--region', nargs=3, action='append',
-            metavar=('<name>', '<sz_bytes>', '<initial data file>'),
-            help='memory region of the access pattern')
-    parser.add_argument('--phase', nargs=2, action='append',
-                        metavar=('<name>', '<runtime_ms>'),
-                        help='access pattern execution phase')
-    parser.add_argument(
-            '--access_pattern', nargs=6, action='append',
-            metavar=('<phase name>', '<region name>', '<randomness>',
-                     '<stride>', '<access_probability>', '<rw_mode>'),
-            help='per-phase per-region access pattern')
-    args = parser.parse_args()
-
-    if args.region is None or args.phase is None or \
-            args.access_pattern is None:
-        print('config is not given')
-        exit(1)
-
+def build_regions_phases(args):
     regions = []
     for name, sz_bytes, data_file in args.region:
         try:
@@ -74,6 +54,31 @@ def main():
             exit(1)
         phases.append(masim_config.Phase(
             name, runtime_ms, patterns_for_phase[name]))
+
+    return regions, phases
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+            '--region', nargs=3, action='append',
+            metavar=('<name>', '<sz_bytes>', '<initial data file>'),
+            help='memory region of the access pattern')
+    parser.add_argument('--phase', nargs=2, action='append',
+                        metavar=('<name>', '<runtime_ms>'),
+                        help='access pattern execution phase')
+    parser.add_argument(
+            '--access_pattern', nargs=6, action='append',
+            metavar=('<phase name>', '<region name>', '<randomness>',
+                     '<stride>', '<access_probability>', '<rw_mode>'),
+            help='per-phase per-region access pattern')
+    args = parser.parse_args()
+
+    if args.region is None or args.phase is None or \
+            args.access_pattern is None:
+        print('config is not given')
+        exit(1)
+
+    regions, phases = build_regions_phases(args)
 
     masim_config.pr_config(regions, phases)
 
