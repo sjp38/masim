@@ -96,6 +96,8 @@ def main():
             help='per-phase per-region access pattern')
     parser.add_argument('--masim_bin', metavar='<file>', default='./masim',
                         help='path to masim executable file')
+    parser.add_argument('--log_interval', metavar='<milliseconds>', type=int,
+                        help='periodic access speed logging interval')
     args = parser.parse_args()
 
     if args.region is None or args.phase is None or \
@@ -109,7 +111,10 @@ def main():
     elif args.action == 'run':
         with open('temp_config', 'w') as f:
             f.write(masim_config.fmt_config(regions, phases))
-        subprocess.run([args.masim_bin, 'temp_config'])
+        cmd = [args.masim_bin, 'temp_config']
+        if args.log_interval is not None:
+            cmd += ['--log_interval=%d' % args.log_interval]
+        subprocess.run(cmd)
 
 if __name__ == '__main__':
     main()
