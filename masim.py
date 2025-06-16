@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import subprocess
 
 import masim_config
 
@@ -59,6 +60,8 @@ def build_regions_phases(args):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('action', choices=['pr_config', 'run'],
+                        help='what to do')
     parser.add_argument(
             '--region', nargs=3, action='append',
             metavar=('<name>', '<sz_bytes>', '<initial data file>'),
@@ -71,6 +74,8 @@ def main():
             metavar=('<phase name>', '<region name>', '<randomness>',
                      '<stride>', '<access_probability>', '<rw_mode>'),
             help='per-phase per-region access pattern')
+    parser.add_argument('--masim_bin', metavar='<file>', default='./masim',
+                        help='path to masim executable file')
     args = parser.parse_args()
 
     if args.region is None or args.phase is None or \
@@ -79,8 +84,12 @@ def main():
         exit(1)
 
     regions, phases = build_regions_phases(args)
-
-    masim_config.pr_config(regions, phases)
+    if args.action == 'pr_config':
+        masim_config.pr_config(regions, phases)
+    elif args.action == 'run':
+        with open('temp_config', 'w') as f:
+            f.write(masim_config.fmt_config(regions, phases))
+        subprocess.run([args.masim_bin, 'temp_config'])
 
 if __name__ == '__main__':
     main()
