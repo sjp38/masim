@@ -5,13 +5,34 @@ import subprocess
 
 import masim_config
 
+def parse_bytes(text):
+    suffix_unit = {
+            'b': 1,
+            'k': 1024,
+            'm': 1024**2,
+            'g': 1024**3,
+            't': 1024**4,
+            }
+    suffix = text[-1].lower()
+    if suffix in suffix_unit:
+        numbers = text[:-1]
+    else:
+        numbers = text
+    try:
+        numbers = int(numbers)
+    except Exception as e:
+        return None, 'number parsing fail (%s)' % e
+
+    if suffix in suffix_unit:
+        numbers = numbers * suffix_unit[suffix]
+    return numbers, None
+
 def build_regions_phases(args):
     regions = []
     for name, sz_bytes, data_file in args.region:
-        try:
-            sz_bytes = int(sz_bytes)
-        except Exception as e:
-            print('wrong region size (%s, %s)' % (sz_bytes, e))
+        sz_bytes, err = parse_bytes(sz_bytes)
+        if err is not None:
+            print('wrong region size (%s, %s)' % (sz_bytes, err))
             exit(1)
         regions.append(masim_config.Region(name, sz_bytes, data_file))
 
@@ -27,10 +48,9 @@ def build_regions_phases(args):
         if not randomness in [0, 1]:
             print('randomness not in [0, 1]: %s' % randomness)
             exit(1)
-        try:
-            stride = int(stride)
-        except Exception as e:
-            print('wrong stride (%s, %s)' % (stride, e))
+        stride, err = parse_bytes(stride)
+        if err is not None:
+            print('wrong stride (%s, %s)' % (stride, err))
             exit(1)
         try:
             probability = int(probability)
