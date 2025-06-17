@@ -508,7 +508,6 @@ size_t parse_regions(char *str, struct mregion **regions_ptr)
 			err(1, "Wrong format config file: %s", lines[i]);
 		strcpy(r->name, fields[0]);
 		r->sz = atoll(fields[1]);
-		astr_free_str_array(fields, nr_fields);
 		if (nr_fields == 2) {
 			r->data_file = NULL;
 		} else {
@@ -516,13 +515,13 @@ size_t parse_regions(char *str, struct mregion **regions_ptr)
 					(strlen(fields[2]) + 1));
 			if (!r->data_file)
 				err(1, "data_file alloc");
-			if (strcmp("none", fields[2])) {
+			sscanf(fields[2], "%s", r->data_file);
+			if (!strcmp("none", r->data_file)) {
 				free(r->data_file);
 				r->data_file = NULL;
-			} else {
-				strcpy(r->data_file, fields[2]);
 			}
 		}
+		astr_free_str_array(fields, nr_fields);
 	}
 
 	astr_free_str_array(lines, nr_regions);
