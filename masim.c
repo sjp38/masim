@@ -446,14 +446,16 @@ void readall(int file, char *buf, ssize_t sz)
 	}
 }
 
-char *rm_comments(char *orig, ssize_t origsz)
+char *rm_comments(char *orig)
 {
 	char *read_cursor;
 	char *write_cursor;
 	size_t len;
 	size_t offset;
 	char *result;
+	size_t origsz;
 
+	origsz = strlen(orig) + 1;
 	result = (char *)malloc(origsz);
 	read_cursor = orig;
 	write_cursor = result;
@@ -672,7 +674,7 @@ void read_config(char *cfgpath, struct access_config *config_ptr)
 	readall(f, cfgstr, sb.st_size);
 	close(f);
 
-	content = rm_comments(cfgstr, sb.st_size);
+	content = rm_comments(cfgstr);
 	free(cfgstr);
 
 	len_paragraph = paragraph_len(content, strlen(content));
