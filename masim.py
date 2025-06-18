@@ -113,7 +113,7 @@ def main():
         masim_config.pr_config(regions, phases)
     elif args.action == 'run':
         with open(args.config_file, 'w') as f:
-            f.write(masim_config.fmt_config(regions, phases))
+            f.write(masim_config.fmt_config(regions, phases) + '\n')
         cmd = [args.masim_bin, args.config_file]
         if args.log_interval is not None:
             cmd += ['--log_interval=%d' % args.log_interval]
