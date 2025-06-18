@@ -622,7 +622,7 @@ size_t parse_phases(char *str, struct phase **phases_ptr,
 	nr_phases = 0;
 	nr_lines = astr_split(str, '\n', &lines_orig);
 	lines = lines_orig;
-	if (nr_lines < 4)	/* phase name, time, nr patterns, pattern */
+	if (nr_lines < 3)	/* phase name, time, pattern */
 		err(1, "Not enough lines for phases %s", str);
 
 	for (i = 0; i < nr_lines; i++) {
