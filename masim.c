@@ -33,13 +33,51 @@ enum hintmethod {
 	MLOCK,
 };
 
+/* can be overriden with --hint */
 enum hintmethod hintmethod = NONE;
+
+/* can be overriden with --quiet */
 int quiet;
+
+/* can be overriden with --default_rw_mode */
 enum rw_mode default_rw_mode = WRITE_ONLY;
+
+/* can be overriden with --repeat */
 int nr_repeats = 1;
+
+/* can be overriden with --log_interval */
 int log_interval_ms = 0;
+
+/*
+ * To minimize random number calculation overhead, we make rand_batch of
+ * rand_arr_sz random number arrays at initialization (init_randints()) and
+ * assign the array of the arrays at rndints.  Read rndint(), the function for
+ * getting a single random number in runtime, to knwo how the pre-initialized
+ * random numbers are really being used.
+ *
+ * Which byte in each region to access under random access mode is determined
+ * by rndint().  If the size of region is very huge compared to total prepared
+ * random numbers in rndints, the program may not access entire bytes of the
+ * region.  User should increase the prepared random numbers in the case.  Or,
+ * this program should handle such case when selecting whych byte to access.
+ *
+ * can be overriden with --random_batch and --random_array
+ */
 static int rand_batch = 1000;
 static int rand_arr_sz = 1000;
+
+/*
+ * To make the overall performance is ruled by not probabilistic region
+ * selections but the memory accesses, we make nr_accesses_per_region accesses
+ * per region, for each of the probabilistic region selection.  Maybe a better
+ * name was nr_accesses_per_region_selection.
+ *
+ * If rand_arr_sz is not big, and the purpose of the program run is not
+ * accurate measurements of the hardware's access speed, this may better to be
+ * low.
+ *
+ * can be overriden with  --nr_accesses_per_region
+ */
 static int nr_accesses_per_region =  1024 * 128;
 
 void pr_regions(struct mregion *regions, size_t nr_regions)
