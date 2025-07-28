@@ -410,7 +410,7 @@ void exec_config(struct access_config *config)
 	for (i = 0; i < config->nr_regions; i++) {
 		region = &config->regions[i];
 		if (use_hugetlb)
-			munmap(HUGETLB_ADDR, region->sz);
+			munmap(region->region, region->sz);
 		else
 			free(region->region);
 	}
