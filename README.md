@@ -78,6 +78,11 @@ number can be given.
 The fifth field specifies whether to do read only (`ro`), write only (`wo`), or
 both read and write (`rw`) access.
 
+The sixth field specifies time interval between access to the region in
+microseconds.  If this is set as non-zero, `masim` tries to access all memory
+of the region once per given time interval.  Also, the access probability
+(fourth field) is ignored in this case.
+
 ### Example
 
 Let's see below config file content as an example.
