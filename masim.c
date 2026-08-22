@@ -171,7 +171,7 @@ static size_t rndint(void)
 	return rndints[rndarr][rndofs++];
 }
 
-static void do_rnd_ro(struct access *access)
+static unsigned long long do_rnd_ro(struct access *access)
 {
 	struct mregion *region = access->mregion;
 	char *rr = region->region;
@@ -180,9 +180,10 @@ static void do_rnd_ro(struct access *access)
 
 	for (i = 0; i < nr_accesses_per_region; i++)
 		read_val = ACCESS_ONCE(rr[rndint() % region->sz]);
+	return nr_accesses_per_region;
 }
 
-static void do_seq_ro(struct access *access)
+static unsigned long long do_seq_ro(struct access *access)
 {
 	struct mregion *region = access->mregion;
 	char *rr = region->region;
@@ -197,9 +198,10 @@ static void do_seq_ro(struct access *access)
 		read_val = ACCESS_ONCE(rr[offset]);
 	}
 	access->last_offset = offset;
+	return nr_accesses_per_region;
 }
 
-static void do_rnd_wo(struct access *access)
+static unsigned long long do_rnd_wo(struct access *access)
 {
 	struct mregion *region = access->mregion;
 	char *rr = region->region;
@@ -207,9 +209,10 @@ static void do_rnd_wo(struct access *access)
 
 	for (i = 0; i < nr_accesses_per_region; i++)
 		ACCESS_ONCE(rr[rndint() % region->sz]) = 1;
+	return nr_accesses_per_region;
 }
 
-static void do_seq_wo(struct access *access)
+static unsigned long long do_seq_wo(struct access *access)
 {
 	struct mregion *region = access->mregion;
 	char *rr = region->region;
@@ -223,9 +226,10 @@ static void do_seq_wo(struct access *access)
 		ACCESS_ONCE(rr[offset]) = 1;
 	}
 	access->last_offset = offset;
+	return nr_accesses_per_region;
 }
 
-static void do_rnd_rw(struct access *access)
+static unsigned long long do_rnd_rw(struct access *access)
 {
 	struct mregion *region = access->mregion;
 	char *rr = region->region;
@@ -239,9 +243,10 @@ static void do_rnd_rw(struct access *access)
 		read_val = ACCESS_ONCE(rr[rndoffset]);
 		ACCESS_ONCE(rr[rndoffset]) = read_val + 1;
 	}
+	return nr_accesses_per_region;
 }
 
-static void do_seq_rw(struct access *access)
+static unsigned long long do_seq_rw(struct access *access)
 {
 	struct mregion *region = access->mregion;
 	char *rr = region->region;
@@ -257,6 +262,7 @@ static void do_seq_rw(struct access *access)
 		ACCESS_ONCE(rr[offset]) = read_val + 1;
 	}
 	access->last_offset = offset;
+	return nr_accesses_per_region;
 }
 
 static unsigned long long do_access(struct access *access)
@@ -264,27 +270,27 @@ static unsigned long long do_access(struct access *access)
 	switch (access->rw_mode) {
 	case READ_ONLY:
 		if (access->random_access)
-			do_rnd_ro(access);
+			return do_rnd_ro(access);
 		else
-			do_seq_ro(access);
+			return do_seq_ro(access);
 		break;
 	case WRITE_ONLY:
 		if (access->random_access)
-			do_rnd_wo(access);
+			return do_rnd_wo(access);
 		else
-			do_seq_wo(access);
+			return do_seq_wo(access);
 		break;
 	case READ_WRITE:
 		if (access->random_access)
-			do_rnd_rw(access);
+			return do_rnd_rw(access);
 		else
-			do_seq_rw(access);
+			return do_seq_rw(access);
 		break;
 	default:
 		break;
 	}
 
-	return nr_accesses_per_region;
+	return 0;
 }
 
 #define SZ_PAGE	4096
