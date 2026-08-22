@@ -612,6 +612,25 @@ enum rw_mode parse_rwmode(char *input)
 	}
 }
 
+unsigned long long parse_interval_us(char *input)
+{
+	int interval_us;
+	unsigned long long cpu_cycle_us;
+
+	cpu_cycle_us = get_cpu_freq() / 1000 / 1000;
+
+	interval_us = atoi(input);
+
+	if (!cpu_cycle_us && interval_us > 1000) {
+		unsigned long long cpu_cycle_ms = get_cpu_freq() / 1000;
+		unsigned long long interval_ms = interval_us / 1000;
+
+		return interval_ms * cpu_cycle_ms;
+	}
+
+	return interval_us * cpu_cycle_us;
+}
+
 /**
  * parse_phase - Parse a phase from string lines
  *
@@ -640,7 +659,7 @@ int parse_phase(char *lines[], int nr_lines, struct phase *p,
 	p->patterns = patterns;
 	for (j = 0; j < p->nr_patterns; j++) {
 		nr_fields = astr_split(lines[0], ',', &fields);
-		if (nr_fields != 4 && nr_fields != 5)
+		if (nr_fields != 4 && nr_fields != 5 && nr_fields != 6)
 			err(1, "Wrong number of fields! %s\n",
 					lines[0]);
 		a = &patterns[j];
@@ -657,10 +676,16 @@ int parse_phase(char *lines[], int nr_lines, struct phase *p,
 		a->random_access = atoi(fields[1]);
 		a->stride = atoi(fields[2]);
 		a->probability = atoi(fields[3]);
-		if (nr_fields == 5) {
+		if (nr_fields >= 5) {
 			a->rw_mode = parse_rwmode(fields[4]);
 		} else {
 			a->rw_mode = default_rw_mode;
+		}
+		if (nr_fields == 6) {
+			a->interval_cycle = parse_interval_us(fields[5]);
+			a->next_cycle = 0;
+		} else {
+			a->interval_cycle = 0;
 		}
 		a->prob_start = p->total_probability;
 		a->last_offset = 0;
