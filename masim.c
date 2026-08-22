@@ -341,6 +341,29 @@ static unsigned long long get_cpu_freq(void)
 	return cpu_freq;
 }
 
+static unsigned long long exec_access(struct phase *phase)
+{
+	int randn;
+	size_t i;
+	unsigned long long nr_access = 0;
+
+	if (phase->total_probability)
+		randn = rndint() % phase->total_probability;
+	else
+		randn = -1;
+	for (i = 0; i < phase->nr_patterns; i++) {
+		struct access *pattern;
+		int prob_start, prob_end;
+
+		pattern = &phase->patterns[i];
+		prob_start = pattern->prob_start;
+		prob_end = prob_start + pattern->probability;
+		if (randn >= prob_start && randn < prob_end)
+			nr_access += do_access(pattern);
+	}
+	return nr_access;
+}
+
 void exec_phase(struct phase *phase)
 {
 	unsigned long long nr_access, nr_last_logged_access = 0;
@@ -358,19 +381,7 @@ void exec_phase(struct phase *phase)
 		hint_access_pattern(phase);
 
 	while (1) {
-		if (phase->total_probability)
-			randn = rndint() % phase->total_probability;
-		else
-			randn = -1;
-		for (i = 0; i < phase->nr_patterns; i++) {
-			int prob_start, prob_end;
-
-			pattern = &phase->patterns[i];
-			prob_start = pattern->prob_start;
-			prob_end = prob_start + pattern->probability;
-			if (randn >= prob_start && randn < prob_end)
-				nr_access += do_access(pattern);
-		}
+		nr_access += exec_access(phase);
 
 		now = aclk_clock();
 		if (!quiet && log_interval_ms &&
