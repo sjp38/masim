@@ -332,17 +332,23 @@ void hint_access_pattern(struct phase *phase)
 	}
 }
 
+static unsigned long long get_cpu_freq(void)
+{
+	static unsigned long long cpu_freq;
+
+	if (!cpu_freq)
+		cpu_freq = aclk_freq();
+	return cpu_freq;
+}
+
 void exec_phase(struct phase *phase)
 {
-	struct access *pattern;
 	unsigned long long nr_access, nr_last_logged_access = 0;
 	unsigned long long start, now, last_log_time;
-	int randn;
-	size_t i;
 	static unsigned long long cpu_cycle_ms;
 
 	if (!cpu_cycle_ms)
-		cpu_cycle_ms = aclk_freq() / 1000;
+		cpu_cycle_ms = get_cpu_freq() / 1000;
 
 	start = aclk_clock();
 	last_log_time = start;
