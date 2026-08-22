@@ -375,6 +375,16 @@ static unsigned long long exec_access(struct phase *phase)
 		int prob_start, prob_end;
 
 		pattern = &phase->patterns[i];
+
+		if (pattern->interval_cycle) {
+			if (aclk_clock() >= pattern->next_cycle) {
+				nr_access += do_access(pattern);
+				pattern->next_cycle = aclk_clock() +
+					pattern->interval_cycle;
+			}
+			continue;
+		}
+
 		prob_start = pattern->prob_start;
 		prob_end = prob_start + pattern->probability;
 		if (randn >= prob_start && randn < prob_end)
