@@ -20,6 +20,8 @@ struct access {
 	size_t stride;
 	int probability;
 	enum rw_mode rw_mode;
+	unsigned long long next_cycle;
+	unsigned long long interval_cycle;
 
 	/* For runtime only */
 	int prob_start;
