@@ -171,16 +171,24 @@ static size_t rndint(void)
 	return rndints[rndarr][rndofs++];
 }
 
+static unsigned long long nr_accesses_to_do(struct access *access)
+{
+	if (!access->interval_cycle)
+		return nr_accesses_per_region;
+	return access->mregion->sz / access->stride;
+}
+
 static unsigned long long do_rnd_ro(struct access *access)
 {
 	struct mregion *region = access->mregion;
 	char *rr = region->region;
 	int i;
 	char __attribute__((unused)) read_val;
+	unsigned long long nr_accesses = nr_accesses_to_do(access);
 
-	for (i = 0; i < nr_accesses_per_region; i++)
+	for (i = 0; i < nr_accesses; i++)
 		read_val = ACCESS_ONCE(rr[rndint() % region->sz]);
-	return nr_accesses_per_region;
+	return nr_accesses;
 }
 
 static unsigned long long do_seq_ro(struct access *access)
@@ -190,15 +198,16 @@ static unsigned long long do_seq_ro(struct access *access)
 	size_t offset = access->last_offset;
 	int i;
 	char __attribute__((unused)) read_val;
+	unsigned long long nr_accesses = nr_accesses_to_do(access);
 
-	for (i = 0; i < nr_accesses_per_region; i++) {
+	for (i = 0; i < nr_accesses; i++) {
 		offset += access->stride;
 		if (offset >= region->sz)
 			offset = 0;
 		read_val = ACCESS_ONCE(rr[offset]);
 	}
 	access->last_offset = offset;
-	return nr_accesses_per_region;
+	return nr_accesses;
 }
 
 static unsigned long long do_rnd_wo(struct access *access)
@@ -206,10 +215,11 @@ static unsigned long long do_rnd_wo(struct access *access)
 	struct mregion *region = access->mregion;
 	char *rr = region->region;
 	int i;
+	unsigned long long nr_accesses = nr_accesses_to_do(access);
 
-	for (i = 0; i < nr_accesses_per_region; i++)
+	for (i = 0; i < nr_accesses; i++)
 		ACCESS_ONCE(rr[rndint() % region->sz]) = 1;
-	return nr_accesses_per_region;
+	return nr_accesses;
 }
 
 static unsigned long long do_seq_wo(struct access *access)
@@ -218,15 +228,16 @@ static unsigned long long do_seq_wo(struct access *access)
 	char *rr = region->region;
 	size_t offset = access->last_offset;
 	int i;
+	unsigned long long nr_accesses = nr_accesses_to_do(access);
 
-	for (i = 0; i < nr_accesses_per_region; i++) {
+	for (i = 0; i < nr_accesses; i++) {
 		offset += access->stride;
 		if (offset >= region->sz)
 			offset = 0;
 		ACCESS_ONCE(rr[offset]) = 1;
 	}
 	access->last_offset = offset;
-	return nr_accesses_per_region;
+	return nr_accesses;
 }
 
 static unsigned long long do_rnd_rw(struct access *access)
@@ -235,15 +246,16 @@ static unsigned long long do_rnd_rw(struct access *access)
 	char *rr = region->region;
 	int i;
 	char read_val;
+	unsigned long long nr_accesses = nr_accesses_to_do(access);
 
-	for (i = 0; i < nr_accesses_per_region; i++) {
+	for (i = 0; i < nr_accesses; i++) {
 		size_t rndoffset;
 
 		rndoffset = rndint() % region->sz;
 		read_val = ACCESS_ONCE(rr[rndoffset]);
 		ACCESS_ONCE(rr[rndoffset]) = read_val + 1;
 	}
-	return nr_accesses_per_region;
+	return nr_accesses;
 }
 
 static unsigned long long do_seq_rw(struct access *access)
@@ -253,8 +265,9 @@ static unsigned long long do_seq_rw(struct access *access)
 	size_t offset = access->last_offset;
 	int i;
 	char read_val;
+	unsigned long long nr_accesses = nr_accesses_to_do(access);
 
-	for (i = 0; i < nr_accesses_per_region; i++) {
+	for (i = 0; i < nr_accesses; i++) {
 		offset += access->stride;
 		if (offset >= region->sz)
 			offset = 0;
@@ -262,7 +275,7 @@ static unsigned long long do_seq_rw(struct access *access)
 		ACCESS_ONCE(rr[offset]) = read_val + 1;
 	}
 	access->last_offset = offset;
-	return nr_accesses_per_region;
+	return nr_accesses;
 }
 
 static unsigned long long do_access(struct access *access)
