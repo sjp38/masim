@@ -37,19 +37,52 @@ class Phase:
         self.runtime_ms = runtime_ms
         self.patterns = patterns
 
-def fmt_config(regions, phases):
+def fmt_config(regions, phases, add_comments=False):
     lines = []
     for region in regions:
         init_data_file = region.init_data_file
         if init_data_file is None:
             init_data_file = 'none'
+        if add_comments:
+            words = ['# allocate %d bytes memory, call it %s' %
+                     (region.sz_bytes, region.name)]
+            if init_data_file != 'none':
+                words.append(', and initialize it with contents of %s' %
+                             init_data_file)
+            lines.append(''.join(words))
         lines.append('%s, %d, %s' % (
             region.name, region.sz_bytes, init_data_file))
     lines.append('')
     for idx, phase in enumerate(phases):
+        if add_comments:
+            lines.append('# for next %s milliseconds, do below.' %
+                         phase.runtime_ms)
         lines.append(phase.name)
         lines.append('%s' % phase.runtime_ms)
         for pattern in phase.patterns:
+            if add_comments:
+                words = []
+                if pattern.rw_mode == 'ro':
+                    words.append('read')
+                elif pattern.rw_mode == 'rw':
+                    words.append('read and write')
+                elif pattern.rw_mode == 'wo':
+                    words.append('write')
+                if pattern.randomness:
+                    words.append('random bytes of region %s' %
+                                 pattern.region_name)
+                else:
+                    words.append('bytes of region %s in address order' %
+                                 pattern.region_name)
+                words.append('with %d bytes stride' % pattern.stride)
+                if pattern.access_probability > 0:
+                    words.append('with %d relative frequency' %
+                                 pattern.access_probability)
+                else:
+                    words.append('once per %s us' % pattern.interval_us)
+                comment_line = ' '.join(words)
+                lines.append('# %s' % comment_line)
+
             lines.append('%s, %d, %d, %d, %s, %d' % (
                 pattern.region_name, 1 if pattern.randomness else 0,
                 pattern.stride, pattern.access_probability, pattern.rw_mode,
