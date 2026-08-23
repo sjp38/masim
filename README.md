@@ -79,9 +79,10 @@ The fifth field specifies whether to do read only (`ro`), write only (`wo`), or
 both read and write (`rw`) access.
 
 The sixth field specifies time interval between access to the region in
-microseconds.  If this is set as non-zero, `masim` tries to access all memory
-of the region once per given time interval.  Also, the access probability
-(fourth field) is ignored in this case.
+microseconds.  This is ignored if the access probability (fourth field) is
+not zero.  If this is not ignored (probability is zero), the probability is
+ignored.  Instead, `masim` tries to access all memory of the region once per
+the given time interval during the phase.
 
 ### Example
 
