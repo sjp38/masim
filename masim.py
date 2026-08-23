@@ -70,7 +70,6 @@ def build_regions_phases(args):
         stride = access_pattern[3]
         probability = access_pattern[4]
         rwmode = access_pattern[5]
-        interval_sec = access_pattern[6]
         try:
             randomness = int(randomness)
         except Exception as e:
@@ -93,10 +92,11 @@ def build_regions_phases(args):
             exit(1)
         if not phase_name in patterns_for_phase:
             patterns_for_phase[phase_name] = []
-        try:
-            interval_sec = float(interval_sec)
-        except Exception as e:
-            print('wrong interval_sec (%s, %s)' % (interval_sec, e))
+
+        interval_sec, err = parse_seconds(access_pattern[6])
+        if err is not None:
+            print('interval_sec parse fail (%s, %s)' %
+                  (access_pattern[6], err))
             exit(1)
         interval_us = int(interval_sec * 1000000)
         patterns_for_phase[phase_name].append(
