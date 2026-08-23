@@ -37,6 +37,17 @@ class Phase:
         self.runtime_ms = runtime_ms
         self.patterns = patterns
 
+def fmt_bytes(bytes):
+    if bytes < 1024:
+        return '%d bytes' % bytes
+    if bytes < 1024 * 1024:
+        return '%d KiB' % (bytes / 1024)
+    if bytes < 1024 * 1024 * 1024:
+        return '%d MiB' % (bytes / 1024 / 1024)
+    if bytes < 1024 * 1024 * 1024 * 1024:
+        return '%d GiB' % (bytes / 1024 / 1024 / 1024)
+    return '%d TiB' % (bytes / 1024 / 1024 / 1024 / 1024)
+
 def fmt_seconds(seconds):
     if seconds < 1:
         ms = seconds * 1000
