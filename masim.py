@@ -38,8 +38,13 @@ def build_regions_phases(args):
 
     patterns_for_phase = {}
     for access_pattern in args.access_pattern:
-        phase_name, region_name, randomness, stride, probability, rwmode = \
-                access_pattern
+        phase_name = access_pattern[0]
+        region_name = access_pattern[1]
+        randomness = access_pattern[2]
+        stride = access_pattern[3]
+        probability = access_pattern[4]
+        rwmode = access_pattern[5]
+        interval_us = access_pattern[6]
         try:
             randomness = int(randomness)
         except Exception as e:
@@ -62,9 +67,14 @@ def build_regions_phases(args):
             exit(1)
         if not phase_name in patterns_for_phase:
             patterns_for_phase[phase_name] = []
+        try:
+            interval_us = int(interval_us)
+        except Exception as e:
+            print('wrong interval_us (%s, %s)' % (interval_us, e))
         patterns_for_phase[phase_name].append(
                 masim_config.AccessPattern(
-                    region_name, randomness, stride, probability, rwmode))
+                    region_name, randomness, stride, probability, rwmode,
+                    interval_us))
 
     phases = []
     for name, runtime_ms in args.phase:
@@ -90,9 +100,10 @@ def main():
                         metavar=('<name>', '<runtime_ms>'),
                         help='access pattern execution phase')
     parser.add_argument(
-            '--access_pattern', nargs=6, action='append',
+            '--access_pattern', nargs=7, action='append',
             metavar=('<phase name>', '<region name>', '<randomness>',
-                     '<stride>', '<access_probability>', '<rw_mode>'),
+                     '<stride>', '<access_probability>', '<rw_mode>',
+                     '<interval_us>'),
             help='per-phase per-region access pattern')
     parser.add_argument('--masim_bin', metavar='<file>', default='./masim',
                         help='path to masim executable file')
