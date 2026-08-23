@@ -154,7 +154,7 @@ def main():
             '--log_interval', metavar='<milliseconds>', type=int,
             help='periodic access speed logging interval')
     parser_run.add_argument(
-            '--nr_accesses_per_region', type=int,
+            '--nr_accesses_per_region', type=int, metavar='<int>',
             help='number of accesses to make per region selection')
     args = parser.parse_args()
 
