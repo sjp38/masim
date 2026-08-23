@@ -73,8 +73,8 @@ def fmt_config(regions, phases, add_comments=False):
     lines.append('')
     for idx, phase in enumerate(phases):
         if add_comments:
-            lines.append('# for next %s milliseconds, do below.' %
-                         phase.runtime_ms)
+            lines.append('# for next %s, do below.' %
+                         fmt_seconds(phase.runtime_ms / 1000))
         lines.append(phase.name)
         lines.append('%s' % phase.runtime_ms)
         for pattern in phase.patterns:
@@ -97,7 +97,8 @@ def fmt_config(regions, phases, add_comments=False):
                     words.append('with %d relative frequency' %
                                  pattern.access_probability)
                 else:
-                    words.append('once per %s us' % pattern.interval_us)
+                    words.append('once per %s' %
+                                 fmt_seconds(pattern.interval_us / 1000000))
                 comment_line = ' '.join(words)
                 lines.append('# %s' % comment_line)
 
