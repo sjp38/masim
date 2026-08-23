@@ -37,6 +37,24 @@ class Phase:
         self.runtime_ms = runtime_ms
         self.patterns = patterns
 
+def fmt_seconds(seconds):
+    if seconds < 1:
+        ms = seconds * 1000
+        if ms > 1:
+            return '%d milliseconds' % ms
+        else :
+            us = seconds * 1000
+            return '%.3f microseconds' % us
+    if seconds > 60:
+        minutes = seconds / 60
+        if minutes < 60:
+            return '%.3f minutes' % minutes
+        hours = minutes / 60
+        if hours < 24:
+            return '%.3f hours' % hours
+        return '%.3f dasys' % (hours / 24)
+    return '%d seconds' % seconds
+
 def fmt_config(regions, phases, add_comments=False):
     lines = []
     for region in regions:
