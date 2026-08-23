@@ -16,14 +16,16 @@ class AccessPattern:
     stride = None
     access_probability = None
     rw_mode = None  # wo, ro, rw
+    interval_us = None
 
     def __init__(self, region_name, randomness, stride, access_probability,
-                 rw_mode):
+                 rw_mode, interval_us=0):
         self.region_name = region_name
         self.randomness = randomness
         self.stride = stride
         self.access_probability = access_probability
         self.rw_mode = rw_mode
+        self.interval_us = interval_us
 
 class Phase:
     name = None
@@ -48,9 +50,10 @@ def fmt_config(regions, phases):
         lines.append(phase.name)
         lines.append('%s' % phase.runtime_ms)
         for pattern in phase.patterns:
-            lines.append('%s, %d, %d, %d, %s' % (
+            lines.append('%s, %d, %d, %d, %s, %d' % (
                 pattern.region_name, 1 if pattern.randomness else 0,
-                pattern.stride, pattern.access_probability, pattern.rw_mode))
+                pattern.stride, pattern.access_probability, pattern.rw_mode,
+                pattern.interval_us))
         if idx < len(phases) - 1:
             lines.append('')
     return '\n'.join(lines)
