@@ -106,10 +106,9 @@ def build_regions_phases(args):
 
     phases = []
     for name, runtime_sec in args.phase:
-        try:
-            runtime_sec = float(runtime_sec)
-        except Exception as e:
-            print('wrong phase runtime (%s, %s)' % (runtime_sec, e))
+        runtime_sec, err = parse_seconds(runtime_sec)
+        if err is not None:
+            print('phase runtime parse fail (%s, %s)' % (args.phase[1], e))
             exit(1)
         runtime_ms = int(runtime_sec * 1000)
         phases.append(masim_config.Phase(
