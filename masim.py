@@ -129,7 +129,7 @@ def do_run(args):
     cmd = [args.masim_bin, args.config_file]
     if args.log_interval is not None:
         cmd += ['--log_interval=%d' % args.log_interval]
-    if args.accesses_per_region_selection is not None:
+    if args.nr_accesses_per_region is not None:
         cmd.append('--nr_accesses_per_region=%d' %
                    args.accesses_per_region_selection)
     subprocess.run(cmd)
@@ -154,7 +154,7 @@ def main():
             '--log_interval', metavar='<milliseconds>', type=int,
             help='periodic access speed logging interval')
     parser_run.add_argument(
-            '--accesses_per_region_selection', type=int,
+            '--nr_accesses_per_region', type=int,
             help='number of accesses to make per region selection')
     args = parser.parse_args()
 
