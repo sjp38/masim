@@ -4,6 +4,59 @@ Memory Access Simulator
 'masim' is a program for generating memory acccesses of artificial patterns.
 You can use it to test the performance or behavior of your memory system.
 
+Getting Started
+---------------
+
+```
+$ # build masim
+$ make
+gcc -c -o masim.o masim.c -g -I -O3 -Wall -Werror -std=gnu99
+gcc -c -o misc.o misc.c -g -I -O3 -Wall -Werror -std=gnu99
+gcc -o masim masim.o misc.o
+$
+$ # build access pattern configuration with comments
+$ ./masim.py pr_config --region r1 50M --region r2 100M /dev/random \
+        --phase p1 5s \
+        --access_pattern p1 r1 0 64 0 rw 5ms \
+        --access_pattern p1 r2 1 128 0 ro 100ms \
+        --phase p2 5s \
+        --access_pattern p2 r1 1 64 10 wo 0 \
+        --access_pattern p2 r2 0 64 90 wo 0
+# allocate 50 MiB memory, call it r1
+r1, 52428800, none
+# allocate 100 MiB memory, call it r2, and initialize it with contents of /dev/random
+r2, 104857600, /dev/random
+
+# for next 5 seconds, do below.
+p1
+5000
+# read and write bytes of region r1 in address order with 64 bytes stride once per 5 milliseconds
+r1, 0, 64, 0, rw, 5000
+# read random bytes of region r2 with 128 bytes stride once per 100 milliseconds
+r2, 1, 128, 0, ro, 100000
+
+# for next 5 seconds, do below.
+p2
+5000
+# write random bytes of region r1 with 64 bytes stride with relative frequency of 10
+r1, 1, 64, 10, wo, 0
+# write bytes of region r2 in address order with 64 bytes stride with relative frequency of 90
+r2, 0, 64, 90, wo, 0
+$
+$ # build the config and run it.
+$ ./masim.py run \
+        --region r1 50M --region r2 100M /dev/random \
+        --phase p1 5s \
+        --access_pattern p1 r1 0 64 0 rw 5ms \
+        --access_pattern p1 r2 1 128 0 ro 100ms \
+        --phase p2 5s \
+        --access_pattern p2 r1 1 64 10 wo 0 \
+        --access_pattern p2 r2 0 64 90 wo 0
+masim is started: pid 68031
+Kill masim or press Ctrl-C to stop
+p1:                   73,400 accesses/msec, 5000 msecs run
+p2:                  163,210 accesses/msec, 5000 msecs run
+```
 
 Usage
 -----
