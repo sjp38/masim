@@ -61,7 +61,7 @@ p2:                  163,210 accesses/msec, 5000 msecs run
 Usage
 -----
 
-Please do below:
+`masim` is a C program.  Build and run it like below.
 
 ```
 $ make
@@ -72,8 +72,16 @@ $ ./masim <config file>
 access you want to generate.  Read following section for how te config file can
 be made.
 
-Also, use `./masim --help` to see more options.
+### masim.py
 
+`masim` and the config file are not very human readable.  `masim.py` is a more
+human friendly wrapper for generting config and running it.  For example:
+
+```
+$ ./masim.py run --config_file <config file>
+```
+
+Use `--help` option of the wrapper for more details.
 
 Configuration File
 ------------------
