@@ -96,7 +96,8 @@ def build_regions_phases(args):
         try:
             interval_sec = float(interval_sec)
         except Exception as e:
-            print('wrong interval_us (%s, %s)' % (interval_us, e))
+            print('wrong interval_sec (%s, %s)' % (interval_sec, e))
+            exit(1)
         interval_us = int(interval_sec * 1000000)
         patterns_for_phase[phase_name].append(
                 masim_config.AccessPattern(
