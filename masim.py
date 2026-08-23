@@ -127,8 +127,9 @@ def do_run(args):
         with open(args.config_file, 'w') as f:
             f.write(masim_config.fmt_config(regions, phases) + '\n')
     cmd = [args.masim_bin, args.config_file]
-    if args.log_interval_ms is not None:
-        cmd += ['--log_interval=%d' % args.log_interval_ms]
+    if args.log_interval is not None:
+        interval_ms = int(args.log_interval * 1000)
+        cmd += ['--log_interval=%d' % interval_ms]
     if args.nr_accesses_per_region is not None:
         cmd.append('--nr_accesses_per_region=%d' %
                    args.accesses_per_region_selection)
@@ -155,7 +156,7 @@ def main():
                             default='masim_py_runconfig',
                             help='config file to save or load')
     parser_run.add_argument(
-            '--log_interval_ms', metavar='<milliseconds>', type=int,
+            '--log_interval', metavar='<seconds>', type=float,
             help='periodic access speed logging interval')
     parser_run.add_argument(
             '--nr_accesses_per_region', type=int, metavar='<int>',
