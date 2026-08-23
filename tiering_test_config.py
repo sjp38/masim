@@ -51,7 +51,7 @@ def main():
             patterns.append(masim_config.AccessPattern(
                 region_name=region.name, randomness=True, stride=4096,
                 access_probability=frequencies[region_idx],
-                rw_mode='wo'))
+                rw_mode='wo', interval_us=0))
         phases.append(masim_config.Phase(
             name='p%d' % phase_idx, runtime_ms=args.phase_runtime_ms,
             patterns=patterns))
