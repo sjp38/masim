@@ -132,6 +132,10 @@ def do_run(args):
     if args.nr_accesses_per_region is not None:
         cmd.append('--nr_accesses_per_region=%d' %
                    args.accesses_per_region_selection)
+    if args.quiet is True:
+        cmd.append('--quiet')
+    if args.repeat is not None:
+        cmd.append('--repeat', '%d' % args.repeat)
     subprocess.run(cmd)
 
 def main():
@@ -156,6 +160,10 @@ def main():
     parser_run.add_argument(
             '--nr_accesses_per_region', type=int, metavar='<int>',
             help='number of accesses to make per region selection')
+    parser_run.add_argument('--quiet', action='store_true',
+                            help='Suppress normal output')
+    parser_run.add_argument('--repeat', type=int, metavar='<int>',
+                            help='Repeat run')
     args = parser.parse_args()
 
     if args.action == 'pr_config':
