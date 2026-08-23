@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import signal
 import subprocess
 
 import masim_config
@@ -113,6 +114,9 @@ def do_pr_config(args):
     regions, phases = build_regions_phases(args)
     masim_config.pr_config(regions, phases)
 
+def run_sighandler(signum, frame):
+    print('\nsignal %s received' % signum)
+
 def do_run(args):
     build_save_config = True
     if args.region is None or args.phase is None or \
@@ -138,7 +142,13 @@ def do_run(args):
         cmd.append('--quiet')
     if args.repeat is not None:
         cmd.append('--repeat', '%d' % args.repeat)
-    subprocess.run(cmd)
+    masim_proc = subprocess.Popen(cmd)
+    print('masim is started: pid %d' % masim_proc.pid)
+    # Ctrl-C will pass the signal to masim, kill it.
+    print('Kill masim or press Ctrl-C to stop')
+    signal.signal(signal.SIGINT, run_sighandler)
+    signal.signal(signal.SIGTERM, run_sighandler)
+    masim_proc.wait()
 
 def main():
     parser = argparse.ArgumentParser()
