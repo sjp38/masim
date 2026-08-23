@@ -88,10 +88,7 @@ def build_regions_phases(args):
 
     return regions, phases
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('action', choices=['pr_config', 'run'],
-                        help='what to do')
+def add_config_arguments(parser):
     parser.add_argument(
             '--region', nargs=3, action='append',
             metavar=('<name>', '<sz_bytes>', '<initial data file>'),
@@ -105,15 +102,29 @@ def main():
                      '<stride>', '<access_probability>', '<rw_mode>',
                      '<interval_us>'),
             help='per-phase per-region access pattern')
-    parser.add_argument('--masim_bin', metavar='<file>', default='./masim',
-                        help='path to masim executable file')
-    parser.add_argument('--config_file', metavar='<file>',
-                        default='masim_py_runconfig',
-                        help='"masim.py run" saves config file here')
-    parser.add_argument('--log_interval', metavar='<milliseconds>', type=int,
-                        help='periodic access speed logging interval')
-    parser.add_argument('--accesses_per_region_selection', type=int,
-                        help='number of accesses to make per region selection')
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    subparsers = parser.add_subparsers(
+            title='action', dest='action', metavar='<action>')
+
+    parser_config = subparsers.add_parser('pr_config', help='print config')
+    add_config_arguments(parser_config)
+
+    parser_run = subparsers.add_parser('run', help='run masim')
+    add_config_arguments(parser_run)
+    parser_run.add_argument('--masim_bin', metavar='<file>', default='./masim',
+                            help='path to masim executable file')
+    parser_run.add_argument('--config_file', metavar='<file>',
+                            default='masim_py_runconfig',
+                            help='"masim.py run" saves config file here')
+    parser_run.add_argument(
+            '--log_interval', metavar='<milliseconds>', type=int,
+            help='periodic access speed logging interval')
+    parser_run.add_argument(
+            '--accesses_per_region_selection', type=int,
+            help='number of accesses to make per region selection')
     args = parser.parse_args()
 
     if args.region is None or args.phase is None or \
