@@ -52,7 +52,7 @@ def parse_seconds(text):
             'h': 3600,
             'd': 3600 * 24,
             }
-    return int(float_nr * suffix_scale[suffix]), None
+    return float_nr * suffix_scale[suffix], None
 
 def build_regions_phases(args):
     regions = []
