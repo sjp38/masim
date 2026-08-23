@@ -55,11 +55,20 @@ def parse_seconds(text):
 
 def build_regions_phases(args):
     regions = []
-    for name, sz_bytes, data_file in args.region:
+    for fields in args.region:
+        if not len(fields) in [2, 3]:
+            print('wrong number of --region fields (%s)' % fields)
+            exit(1)
+        name = fields[0]
+        sz_bytes = fields[1]
         sz_bytes, err = parse_bytes(sz_bytes)
         if err is not None:
             print('wrong region size (%s, %s)' % (sz_bytes, err))
             exit(1)
+        if len(fields) > 2:
+            data_file = fields[2]
+        else:
+            data_file = 'none'
         regions.append(masim_config.Region(name, sz_bytes, data_file))
 
     patterns_for_phase = {}
@@ -118,9 +127,9 @@ def build_regions_phases(args):
 
 def add_config_arguments(parser):
     parser.add_argument(
-            '--region', nargs=3, action='append',
-            metavar=('<name>', '<sz_bytes>', '<initial data file>'),
-            help='memory region of the access pattern')
+            '--region', nargs='+', action='append', metavar='<field>',
+            help='memory region of the access pattern; '
+            '<name> <sz_bytes> [inital data file]')
     parser.add_argument('--phase', nargs=2, action='append',
                         metavar=('<name>', '<runtime_sec>'),
                         help='access pattern execution phase')
