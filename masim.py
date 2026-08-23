@@ -79,12 +79,13 @@ def build_regions_phases(args):
                     interval_us))
 
     phases = []
-    for name, runtime_ms in args.phase:
+    for name, runtime_sec in args.phase:
         try:
-            runtime_ms = int(runtime_ms)
+            runtime_sec = float(runtime_sec)
         except Exception as e:
-            print('wrong phase runtime (%s, %s)' % (runtime_ms, e))
+            print('wrong phase runtime (%s, %s)' % (runtime_sec, e))
             exit(1)
+        runtime_ms = int(runtime_sec * 1000)
         phases.append(masim_config.Phase(
             name, runtime_ms, patterns_for_phase[name]))
 
@@ -96,7 +97,7 @@ def add_config_arguments(parser):
             metavar=('<name>', '<sz_bytes>', '<initial data file>'),
             help='memory region of the access pattern')
     parser.add_argument('--phase', nargs=2, action='append',
-                        metavar=('<name>', '<runtime_ms>'),
+                        metavar=('<name>', '<runtime_sec>'),
                         help='access pattern execution phase')
     parser.add_argument(
             '--access_pattern', nargs=7, action='append',
