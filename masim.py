@@ -44,7 +44,7 @@ def build_regions_phases(args):
         stride = access_pattern[3]
         probability = access_pattern[4]
         rwmode = access_pattern[5]
-        interval_us = access_pattern[6]
+        interval_sec = access_pattern[6]
         try:
             randomness = int(randomness)
         except Exception as e:
@@ -68,9 +68,10 @@ def build_regions_phases(args):
         if not phase_name in patterns_for_phase:
             patterns_for_phase[phase_name] = []
         try:
-            interval_us = int(interval_us)
+            interval_sec = float(interval_sec)
         except Exception as e:
             print('wrong interval_us (%s, %s)' % (interval_us, e))
+        interval_us = int(interval_sec * 1000000)
         patterns_for_phase[phase_name].append(
                 masim_config.AccessPattern(
                     region_name, randomness, stride, probability, rwmode,
@@ -100,7 +101,7 @@ def add_config_arguments(parser):
             '--access_pattern', nargs=7, action='append',
             metavar=('<phase name>', '<region name>', '<randomness>',
                      '<stride>', '<access_probability>', '<rw_mode>',
-                     '<interval_us>'),
+                     '<interval_sec>'),
             help='per-phase per-region access pattern')
 
 def do_pr_config(args):
