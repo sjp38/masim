@@ -19,7 +19,7 @@ class AccessPattern:
     interval_us = None
 
     def __init__(self, region_name, randomness, stride, access_probability,
-                 rw_mode, interval_us=0):
+                 rw_mode, interval_us):
         self.region_name = region_name
         self.randomness = randomness
         self.stride = stride
