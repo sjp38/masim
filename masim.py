@@ -105,6 +105,23 @@ def add_config_arguments(parser):
                      '<interval_sec>'),
             help='per-phase per-region access pattern')
 
+def add_run_arguments(parser):
+    parser.add_argument('--masim_bin', metavar='<file>', default='./masim',
+                            help='path to masim executable file')
+    parser.add_argument('--config_file', metavar='<file>',
+                            default='masim_py_runconfig',
+                            help='config file to save or load')
+    parser.add_argument(
+            '--log_interval', metavar='<seconds>', type=float,
+            help='periodic access speed logging interval')
+    parser.add_argument(
+            '--nr_accesses_per_region', type=int, metavar='<int>',
+            help='number of accesses to make per region selection')
+    parser.add_argument('--quiet', action='store_true',
+                            help='Suppress normal output')
+    parser.add_argument('--repeat', type=int, metavar='<int>',
+                            help='Repeat run')
+
 def do_pr_config(args):
     if args.region is None or args.phase is None or \
             args.access_pattern is None:
@@ -161,21 +178,7 @@ def main():
 
     parser_run = subparsers.add_parser('run', help='run masim')
     add_config_arguments(parser_run)
-    parser_run.add_argument('--masim_bin', metavar='<file>', default='./masim',
-                            help='path to masim executable file')
-    parser_run.add_argument('--config_file', metavar='<file>',
-                            default='masim_py_runconfig',
-                            help='config file to save or load')
-    parser_run.add_argument(
-            '--log_interval', metavar='<seconds>', type=float,
-            help='periodic access speed logging interval')
-    parser_run.add_argument(
-            '--nr_accesses_per_region', type=int, metavar='<int>',
-            help='number of accesses to make per region selection')
-    parser_run.add_argument('--quiet', action='store_true',
-                            help='Suppress normal output')
-    parser_run.add_argument('--repeat', type=int, metavar='<int>',
-                            help='Repeat run')
+    add_run_arguments(parser_run)
     args = parser.parse_args()
 
     if args.action == 'pr_config':
