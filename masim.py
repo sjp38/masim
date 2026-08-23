@@ -113,14 +113,19 @@ def do_pr_config(args):
     masim_config.pr_config(regions, phases)
 
 def do_run(args):
+    build_save_config = True
     if args.region is None or args.phase is None or \
             args.access_pattern is None:
-        print('config is not given')
-        exit(1)
+        if args.config_file is not None:
+            build_save_config = False
+        else:
+            print('config is not given')
+            exit(1)
 
-    regions, phases = build_regions_phases(args)
-    with open(args.config_file, 'w') as f:
-        f.write(masim_config.fmt_config(regions, phases) + '\n')
+    if build_save_config is True:
+        regions, phases = build_regions_phases(args)
+        with open(args.config_file, 'w') as f:
+            f.write(masim_config.fmt_config(regions, phases) + '\n')
     cmd = [args.masim_bin, args.config_file]
     if args.log_interval is not None:
         cmd += ['--log_interval=%d' % args.log_interval]
@@ -144,7 +149,7 @@ def main():
                             help='path to masim executable file')
     parser_run.add_argument('--config_file', metavar='<file>',
                             default='masim_py_runconfig',
-                            help='"masim.py run" saves config file here')
+                            help='config file to save or load')
     parser_run.add_argument(
             '--log_interval', metavar='<milliseconds>', type=int,
             help='periodic access speed logging interval')
