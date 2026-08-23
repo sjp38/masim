@@ -103,6 +103,32 @@ def add_config_arguments(parser):
                      '<interval_us>'),
             help='per-phase per-region access pattern')
 
+def do_pr_config(args):
+    if args.region is None or args.phase is None or \
+            args.access_pattern is None:
+        print('config is not given')
+        exit(1)
+
+    regions, phases = build_regions_phases(args)
+    masim_config.pr_config(regions, phases)
+
+def do_run(args):
+    if args.region is None or args.phase is None or \
+            args.access_pattern is None:
+        print('config is not given')
+        exit(1)
+
+    regions, phases = build_regions_phases(args)
+    with open(args.config_file, 'w') as f:
+        f.write(masim_config.fmt_config(regions, phases) + '\n')
+    cmd = [args.masim_bin, args.config_file]
+    if args.log_interval is not None:
+        cmd += ['--log_interval=%d' % args.log_interval]
+    if args.accesses_per_region_selection is not None:
+        cmd.append('--nr_accesses_per_region=%d' %
+                   args.accesses_per_region_selection)
+    subprocess.run(cmd)
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -127,24 +153,10 @@ def main():
             help='number of accesses to make per region selection')
     args = parser.parse_args()
 
-    if args.region is None or args.phase is None or \
-            args.access_pattern is None:
-        print('config is not given')
-        exit(1)
-
-    regions, phases = build_regions_phases(args)
     if args.action == 'pr_config':
-        masim_config.pr_config(regions, phases)
+        do_pr_config(args)
     elif args.action == 'run':
-        with open(args.config_file, 'w') as f:
-            f.write(masim_config.fmt_config(regions, phases) + '\n')
-        cmd = [args.masim_bin, args.config_file]
-        if args.log_interval is not None:
-            cmd += ['--log_interval=%d' % args.log_interval]
-        if args.accesses_per_region_selection is not None:
-            cmd.append('--nr_accesses_per_region=%d' %
-                       args.accesses_per_region_selection)
-        subprocess.run(cmd)
+        do_run(args)
 
 if __name__ == '__main__':
     main()
