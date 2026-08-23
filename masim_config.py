@@ -73,8 +73,8 @@ def fmt_config(regions, phases, add_comments=False):
         if init_data_file is None:
             init_data_file = 'none'
         if add_comments:
-            words = ['# allocate %d bytes memory, call it %s' %
-                     (region.sz_bytes, region.name)]
+            words = ['# allocate %s memory, call it %s' %
+                     (fmt_bytes(region.sz_bytes), region.name)]
             if init_data_file != 'none':
                 words.append(', and initialize it with contents of %s' %
                              init_data_file)
@@ -103,7 +103,7 @@ def fmt_config(regions, phases, add_comments=False):
                 else:
                     words.append('bytes of region %s in address order' %
                                  pattern.region_name)
-                words.append('with %d bytes stride' % pattern.stride)
+                words.append('with %s stride' % fmt_bytes(pattern.stride))
                 if pattern.access_probability > 0:
                     words.append('with %d relative frequency' %
                                  pattern.access_probability)
