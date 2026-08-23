@@ -165,7 +165,7 @@ def do_pr_config(args):
         exit(1)
 
     regions, phases = build_regions_phases(args)
-    masim_config.pr_config(regions, phases)
+    print(masim_config.fmt_config(regions, phases, add_comments=True))
 
 def run_sighandler(signum, frame):
     print('\nsignal %s received' % signum)
@@ -183,7 +183,8 @@ def do_run(args):
     if build_save_config is True:
         regions, phases = build_regions_phases(args)
         with open(args.config_file, 'w') as f:
-            f.write(masim_config.fmt_config(regions, phases) + '\n')
+            f.write(masim_config.fmt_config(
+                regions, phases, add_comments=True) + '\n')
     cmd = [args.masim_bin, args.config_file]
     if args.log_interval is not None:
         interval_ms = int(args.log_interval * 1000)
