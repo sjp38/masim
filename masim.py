@@ -28,6 +28,31 @@ def parse_bytes(text):
         numbers = numbers * suffix_unit[suffix]
     return numbers, None
 
+def time_float_nr_suffix(text):
+    suffix = text[-2:].lower()
+    if suffix in ['us', 'ms']:
+        return text[:-2], suffix
+    suffix = text[-1:].lower()
+    if suffix in ['s', 'm', 'h', 'd']:
+        return text[:-1], suffix
+    return text, 's'
+
+def parse_seconds(text):
+    float_nr, suffix = time_float_nr_suffix(text)
+    try:
+        float_nr = float(float_nr)
+    except Exception as e:
+        return None, 'number parsing fail (%s, %s)' % (text, e)
+    suffix_scale = {
+            'us': 1 / 1000000,
+            'ms': 1 / 1000,
+            's': 1,
+            'm': 60,
+            'h': 3600,
+            'd': 3600 * 24,
+            }
+    return int(float_nr * suffix_scale[suffix]), None
+
 def build_regions_phases(args):
     regions = []
     for name, sz_bytes, data_file in args.region:
