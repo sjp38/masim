@@ -105,7 +105,7 @@ def fmt_config(regions, phases, add_comments=False):
                                  pattern.region_name)
                 words.append('with %s stride' % fmt_bytes(pattern.stride))
                 if pattern.access_probability > 0:
-                    words.append('with %d relative frequency' %
+                    words.append('with relative frequency of %d' %
                                  pattern.access_probability)
                 else:
                     words.append('once per %s' %
