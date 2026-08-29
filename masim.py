@@ -195,7 +195,7 @@ def do_run(args):
     if args.quiet is True:
         cmd.append('--quiet')
     if args.repeat is not None:
-        cmd.append('--repeat', '%d' % args.repeat)
+        cmd += ['--repeat', '%d' % args.repeat]
     masim_proc = subprocess.Popen(cmd)
     print('masim is started: pid %d' % masim_proc.pid)
     # Ctrl-C will pass the signal to masim, kill it.
