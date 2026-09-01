@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-2.0
 
 import argparse
+import os
 import signal
 import subprocess
 
@@ -142,7 +143,7 @@ def add_config_arguments(parser):
             help='per-phase per-region access pattern')
 
 def add_run_arguments(parser):
-    parser.add_argument('--masim_bin', metavar='<file>', default='./masim',
+    parser.add_argument('--masim_bin', metavar='<file>', default=None,
                             help='path to masim executable file')
     parser.add_argument('--config_file', metavar='<file>',
                             default='masim_py_runconfig',
@@ -171,6 +172,9 @@ def run_sighandler(signum, frame):
     print('\nsignal %s received' % signum)
 
 def do_run(args):
+    if args.masim_bin is None:
+        bindir = os.path.dirname(os.path.realpath(__file__))
+        args.masim_bin = os.path.join(bindir, 'masim')
     build_save_config = True
     if args.region is None or args.phase is None or \
             args.access_pattern is None:
